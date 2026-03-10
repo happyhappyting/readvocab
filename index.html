@@ -4,122 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>iPad网页点读笔</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <!-- Tesseract.js OCR库 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Reading Pen</title>
     <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+    
+    <style>
+        :root { --primary: #4a90e2; --bg: #f8f9fa; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .hidden { display: none !important; }
+        
+        /* Layout */
+        header { margin-bottom: 20px; text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; }
+        
+        /* Camera */
+        #video { width: 100%; border-radius: 20px; background: #000; box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+        
+        /* Character Grid */
+        #text-result { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; }
+        .word-btn { 
+            font-size: 2.2rem; padding: 12px; background: white; border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid #eee;
+        }
+
+        /* Detail Card */
+        #detail-card { 
+            background: white; padding: 30px 20px; border-radius: 24px; 
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .pinyin { color: var(--primary); font-size: 1.6rem; margin: 10px 0; font-weight: 600; }
+        .eng { color: #666; font-size: 1.2rem; line-height: 1.4; margin-bottom: 20px; }
+
+        /* Buttons */
+        .btn-main { 
+            background: var(--primary); color: white; border: none; width: 100%;
+            padding: 18px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; margin: 10px 0;
+        }
+        .btn-back { background: none; border: 1px solid #ccc; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 标题 -->
-        <header>
-            <h1><i class="fas fa-book-reader"></i> 网页点读笔</h1>
-            <p class="subtitle">拍照 → 识别 → 点击学习</p>
-        </header>
 
-        <!-- 步骤指示器 -->
-        <div class="steps">
-            <div class="step active" id="step1">1. 拍照</div>
-            <div class="step" id="step2">2. 识别</div>
-            <div class="step" id="step3">3. 点读</div>
-        </div>
+<div class="container">
+    <header>
+        <h1 style="margin:0;">点读笔</h1>
+        <p style="margin:0; color:#888;">Reading Pen (Scan & Translate)</p>
+    </header>
 
-        <!-- 主内容区 -->
-        <main>
-            <!-- 拍照区域 -->
-            <section id="camera-section" class="section active">
-                <div class="camera-container">
-                    <video id="camera" autoplay playsinline></video>
-                    <div class="focus-guide">
-                        <div class="frame"></div>
-                        <p>将文字放入框内</p>
-                    </div>
-                </div>
-                <div class="controls">
-                    <button id="capture-btn" class="btn-primary">
-                        <i class="fas fa-camera"></i> 拍照识别
-                    </button>
-                    <button id="switch-camera" class="btn-secondary">
-                        <i class="fas fa-sync-alt"></i> 切换摄像头
-                    </button>
-                </div>
-            </section>
-
-            <!-- 识别结果区域 -->
-            <section id="text-section" class="section">
-                <div class="result-header">
-                    <h3>识别结果</h3>
-                    <button id="back-to-camera" class="btn-small">
-                        <i class="fas fa-redo"></i> 重新拍照
-                    </button>
-                </div>
-                <div class="text-display" id="recognized-text">
-                    <!-- 文字会动态插入到这里 -->
-                </div>
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>正在识别文字...</p>
-                </div>
-            </section>
-
-            <!-- 词语详情区域 -->
-            <section id="word-detail" class="section">
-                <div class="detail-header">
-                    <h3>词语学习</h3>
-                    <button id="back-to-text" class="btn-small">
-                        <i class="fas fa-arrow-left"></i> 返回
-                    </button>
-                </div>
-                <div class="word-card">
-                    <div class="word-display">
-                        <h2 id="current-word">苹果</h2>
-                        <p class="pinyin" id="word-pinyin">píng guǒ</p>
-                    </div>
-                    <div class="word-controls">
-                        <button id="speak-btn" class="btn-icon">
-                            <i class="fas fa-volume-up"></i> 发音
-                        </button>
-                        <button id="record-btn" class="btn-icon">
-                            <i class="fas fa-microphone"></i> 跟读
-                        </button>
-                    </div>
-                    <div class="word-info">
-                        <h4><i class="fas fa-book"></i> 解释</h4>
-                        <p id="word-meaning">一种常见水果，圆形，味道甜...</p>
-                        <h4><i class="fas fa-comment"></i> 例句</h4>
-                        <p id="word-example">我喜欢吃<mark>苹果</mark>。</p>
-                        <h4><i class="fas fa-history"></i> 学习记录</h4>
-                        <p>已学习 <span id="learn-count">3</span> 次</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- 生词本 -->
-        <aside class="vocab-sidebar">
-            <h3><i class="fas fa-bookmark"></i> 生词本</h3>
-            <div class="vocab-list" id="vocab-list">
-                <p class="empty-tip">点击词语会自动添加到这里</p>
-            </div>
-            <button id="clear-vocab" class="btn-small">清空生词本</button>
-        </aside>
-
-        <!-- 使用提示 -->
-        <div class="tips">
-            <p><i class="fas fa-lightbulb"></i> 提示：添加到主屏幕可获得更好的体验</p>
-        </div>
+    <div id="view-camera">
+        <video id="video" autoplay playsinline></video>
+        <button class="btn-main" onclick="captureText()">📷 Scan / 识别文字</button>
     </div>
 
-    <!-- 录音指示器 -->
-    <div id="recording-indicator" class="recording-indicator">
-        <div class="pulse"></div>
-        <p>正在录音... 请跟读</p>
+    <div id="view-result" class="hidden">
+        <button class="btn-back" onclick="location.reload()">⬅ Retake / 重拍</button>
+        <div id="loading" style="text-align:center; padding: 40px;">Reading... / 识别中...</div>
+        <div id="text-result"></div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="view-detail" class="hidden">
+        <button class="btn-back" onclick="showResults()">⬅ Back / 返回</button>
+        <div id="detail-card">
+            <h2 id="card-zh" style="font-size:4rem; margin:0;">--</h2>
+            <p id="card-py" class="pinyin">--</p>
+            <p id="card-en" class="eng">--</p>
+            <button class="btn-main" onclick="speakText()" style="background:#28a745;">🔊 Listen / 听发音</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let dictionary = {};
+    const video = document.getElementById('video');
+
+    async function init() {
+        try {
+            const resp = await fetch('dictionary.json');
+            dictionary = await resp.json();
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            video.srcObject = stream;
+        } catch (e) { alert("Camera error: Please allow camera access."); }
+    }
+
+    async function captureText() {
+        document.getElementById('view-camera').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        const result = await Tesseract.recognize(canvas, 'chi_sim');
+        // Only keep Chinese characters
+        const cleanText = result.data.text.replace(/[^\u4e00-\u9fa5]/g, ''); 
+        
+        document.getElementById('loading').classList.add('hidden');
+        const container = document.getElementById('text-result');
+        
+        if (cleanText.length === 0) {
+            container.innerHTML = "<p>No text found. Try again! <br> 未识别到文字，请重试。</p>";
+        }
+
+        cleanText.split('').forEach(char => {
+            const b = document.createElement('div');
+            b.className = 'word-btn';
+            b.innerText = char;
+            b.onclick = () => showDetail(char);
+            container.appendChild(b);
+        });
+    }
+
+    function showDetail(char) {
+        document.getElementById('view-result').classList.add('hidden');
+        document.getElementById('view-detail').classList.remove('hidden');
+        
+        const entry = dictionary[char] || { pinyin: "N/A", english: "Definition not found" };
+        document.getElementById('card-zh').innerText = char;
+        document.getElementById('card-py').innerText = entry.pinyin;
+        document.getElementById('card-en').innerText = entry.english;
+        
+        speakText(char);
+    }
+
+    function showResults() {
+        document.getElementById('view-detail').classList.add('hidden');
+        document.getElementById('view-result').classList.remove('hidden');
+    }
+
+    function speakText(text) {
+        const target = text || document.getElementById('card-zh').innerText;
+        const msg = new SpeechSynthesisUtterance(target);
+        msg.lang = 'zh-CN';
+        msg.rate = 0.8;
+        window.speechSynthesis.speak(msg);
+    }
+
+    init();
+</script>
 </body>
 </html>
