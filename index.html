@@ -4,188 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Reading Pen 点读笔</title>
-    <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+    <title>Pro Reading Pen</title>
+    <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
     <style>
-        :root { --primary: #4a90e2; --success: #28a745; --bg: #f0f2f5; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; padding-bottom: 100px; }
+        :root { --primary: #007aff; --bg: #f2f2f7; --card: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
         .hidden { display: none !important; }
         
-        header { text-align: center; padding: 10px 0; }
-        .en-sub { display: block; font-size: 0.9rem; color: #888; font-weight: normal; }
+        /* UI Styling */
+        .btn-main { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 16px; font-size: 1.2rem; font-weight: 600; width: 100%; box-shadow: 0 4px 12px rgba(0,122,255,0.3); cursor: pointer; }
+        .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+        .word-btn { font-size: 2rem; padding: 15px 25px; background: white; border-radius: 14px; border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* Main UI Components */
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        /* Detail Sheet */
+        #detail-view { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 30px 20px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.1); text-align: center; z-index: 10; }
+        .pinyin { color: var(--primary); font-size: 1.5rem; font-weight: bold; }
         
-        /* The Grid of Words */
-        #text-result { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        .word-btn { 
-            font-size: 1.8rem; padding: 12px 18px; background: #fff; border-radius: 12px;
-            border: 2px solid #e1e4e8; cursor: pointer; transition: all 0.2s;
-        }
-        .word-btn:active { transform: scale(0.9); background: #eef2ff; }
-
-        /* Detail Modal (Bottom Sheet style) */
-        #view-detail { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: white; 
-            padding: 30px 20px; border-radius: 25px 25px 0 0; 
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.15); text-align: center; z-index: 100;
-        }
-        
-        /* History Section */
-        .history-section { margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px; }
-        .history-list { display: flex; flex-direction: column-reverse; gap: 8px; }
-        .history-item { 
-            background: #fff; padding: 10px 15px; border-radius: 10px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-left: 5px solid var(--primary); font-size: 1.1rem;
-        }
-
-        /* Buttons */
-        .btn-scan { 
-            background: var(--primary); color: white; border: none; width: 100%;
-            padding: 20px; border-radius: 15px; font-size: 1.3rem; font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
-        }
-        .btn-speak { background: var(--success); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.1rem; margin-top: 10px; }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #ccc; border: none; background: none; }
-        
+        /* Loading Spinner */
         #loading { text-align: center; padding: 40px; }
-        .spinner { border: 4px solid rgba(0,0,0,0.1); border-left-color: var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>点读笔 <span class="en-sub">Reading Pen</span></h1>
+    <header style="text-align: center; margin-bottom: 20px;">
+        <h1 style="margin:0;">点读笔</h1>
+        <p style="color:#888;">High-Accuracy OCR Mode</p>
     </header>
 
-    <div class="card">
-        <label for="camera-input" class="btn-scan" style="display:block; text-align:center; cursor:pointer;">
-            📷 Take Photo / 拍照识别
+    <div id="main-ui">
+        <label for="camera-file" class="btn-main" style="display:block; text-align:center;">
+            📷 Take Clear Photo / 拍照
         </label>
-        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
-        <p style="text-align:center; font-size:0.8rem; color:#888; margin-top:10px;">
-            Uses iPad Camera for better accuracy
-        </p>
+        <input type="file" id="camera-file" accept="image/*" capture="environment" class="hidden">
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Enhancing Image & Reading...<br>正在增强画质并识别...</p>
+        </div>
+
+        <div id="word-container" class="word-grid"></div>
     </div>
 
-    <div id="loading" class="hidden">
-        <div class="spinner"></div>
-        <p>Reading Text... / 识别中...</p>
+    <canvas id="proc-canvas" class="hidden"></canvas>
+
+    <div id="detail-view" class="hidden">
+        <button onclick="this.parentElement.classList.add('hidden')" style="float:right; border:none; background:none; font-size:1.5rem;">✕</button>
+        <h2 id="zh-text" style="font-size:4rem; margin:10px 0;">--</h2>
+        <p id="py-text" class="pinyin">--</p>
+        <p id="en-text" style="color:#666;">--</p>
+        <button class="btn-main" onclick="speak()">🔊 Play Sound / 发音</button>
     </div>
-
-    <div id="text-result"></div>
-
-    <div class="history-section">
-        <h3>学习记录 <span class="en-sub">History</span></h3>
-        <div id="history-list" class="history-list">
-            </div>
-    </div>
-</div>
-
-<div id="view-detail" class="hidden">
-    <button class="close-x" onclick="closeDetail()">✕</button>
-    <h2 id="card-zh" style="font-size:3.5rem; margin:0;">--</h2>
-    <p id="card-py" style="color:var(--primary); font-size:1.5rem; margin:5px; font-weight:bold;">--</p>
-    <p id="card-en" style="color:#666; font-size:1.2rem; margin-bottom:15px;">--</p>
-    <button class="btn-speak" onclick="speakText()">🔊 Listen / 听发音</button>
-</div>
 
 <script>
     let dictionary = {};
-    const historyList = [];
-    const cameraInput = document.getElementById('camera-input');
-    const resultDiv = document.getElementById('text-result');
-    const historyDiv = document.getElementById('history-list');
+    const cameraInput = document.getElementById('camera-file');
+    const canvas = document.getElementById('proc-canvas');
+    const ctx = canvas.getContext('2d');
 
-    // 1. Load your dictionary
-    fetch('dictionary.json')
-        .then(r => r.json())
-        .then(data => { dictionary = data; console.log("Dict Loaded"); })
-        .catch(err => alert("Dictionary not found! Make sure dictionary.json is in the same folder."));
+    // Load Dict
+    fetch('dictionary.json').then(r => r.json()).then(d => dictionary = d);
 
-    // 2. Handle Image Upload (High Quality OCR)
     cameraInput.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         document.getElementById('loading').classList.remove('hidden');
-        resultDiv.innerHTML = "";
+        document.getElementById('word-container').innerHTML = "";
 
-        const result = await Tesseract.recognize(file, 'chi_sim');
-        // Filter: Only keep Chinese characters
-        const text = result.data.text.replace(/[^\u4e00-\u9fa5]/g, ''); 
-        
-        segmentAndDisplay(text);
-        document.getElementById('loading').classList.add('hidden');
+        // 1. Image Pre-processing (The Secret Sauce)
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = async () => {
+            // Resize to 2x for sub-pixel accuracy
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Apply Filters: Grayscale + High Contrast + Sharpness
+            ctx.filter = 'grayscale(1) contrast(1.5) brightness(1.1)';
+            ctx.drawImage(img, 0, 0);
+
+            // 2. Run OCR with v5 (faster/cleaner)
+            const worker = await Tesseract.createWorker('chi_sim');
+            const { data: { text } } = await worker.recognize(canvas);
+            await worker.terminate();
+
+            // 3. Clean and Pair
+            const cleanText = text.replace(/[^\u4e00-\u9fa5]/g, '');
+            processText(cleanText);
+            document.getElementById('loading').classList.add('hidden');
+        };
     };
 
-    // 3. Pairing Logic: Checks dictionary for pairs
-    function segmentAndDisplay(text) {
+    function processText(text) {
         let i = 0;
+        const container = document.getElementById('word-container');
         while (i < text.length) {
             let pair = text[i] + (text[i+1] || "");
+            let word = dictionary[pair] ? pair : text[i];
             
-            // Check if 2-character word exists in dictionary
-            if (dictionary[pair]) {
-                createBtn(pair);
-                i += 2;
-            } else {
-                createBtn(text[i]);
-                i += 1;
-            }
+            const btn = document.createElement('div');
+            btn.className = 'word-btn';
+            btn.innerText = word;
+            btn.onclick = () => showDetail(word);
+            container.appendChild(btn);
+            
+            i += (word.length);
         }
     }
 
-    function createBtn(word) {
-        const div = document.createElement('div');
-        div.className = 'word-btn';
-        div.innerText = word;
-        div.onclick = () => showDetail(word);
-        resultDiv.appendChild(div);
-    }
-
-    // 4. Detail View & History Logging
     function showDetail(word) {
         const entry = dictionary[word] || { pinyin: "N/A", english: "Not found" };
-        
-        document.getElementById('card-zh').innerText = word;
-        document.getElementById('card-py').innerText = entry.pinyin;
-        document.getElementById('card-en').innerText = entry.english;
-        document.getElementById('view-detail').classList.remove('hidden');
-        
-        addToHistory(word, entry);
-        speakText(word);
+        document.getElementById('zh-text').innerText = word;
+        document.getElementById('py-text').innerText = entry.pinyin;
+        document.getElementById('en-text').innerText = entry.english;
+        document.getElementById('detail-view').classList.remove('hidden');
+        speak(word);
     }
 
-    function addToHistory(word, entry) {
-        // Don't add if already in history recently
-        if (historyList.some(item => item.word === word)) return;
-        
-        historyList.push({word, entry});
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        item.innerHTML = `
-            <strong>${word}</strong> 
-            <span style="font-size:0.9rem; color:#666;">${entry.pinyin}</span>
-            <button onclick="speakText('${word}')" style="border:none; background:none; font-size:1.2rem;">🔊</button>
-        `;
-        historyDiv.appendChild(item);
-    }
-
-    function closeDetail() { document.getElementById('view-detail').classList.add('hidden'); }
-
-    function speakText(t) {
-        const text = t || document.getElementById('card-zh').innerText;
+    function speak(word) {
+        const text = word || document.getElementById('zh-text').innerText;
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'zh-CN';
-        msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
 </script>
-
 </body>
 </html>
