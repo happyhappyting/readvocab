@@ -7,7 +7,6 @@
     <title>Smart Pen | 智能阅读助手</title>
     <style>
         :root {
-            /* 依然保持活力，但色调略微沉稳 */
             --bg-yellow: #FFF9C4; 
             --card-white: #FFFFFF;
             --action-pink: #FF66A1; 
@@ -16,6 +15,7 @@
             --blue-shadow: #0056B3;
             --success-green: #34C759;
             --text-main: #1C1C1E;
+            --accent-gray: #8E8E93;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,7 +33,6 @@
 
         .container { width: 92%; max-width: 500px; padding-bottom: 150px; }
 
-        /* 卡片基础：去掉磨砂滤镜，确保不挡图片识别 */
         .glass-card {
             background: var(--card-white);
             border-radius: 24px;
@@ -45,7 +44,6 @@
 
         .step-header { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; }
 
-        /* 📸 Step 1: 拍照按钮 */
         .photo-btn {
             background: var(--action-pink); color: white; border: none;
             width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -55,7 +53,6 @@
         }
         .photo-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--pink-shadow); }
 
-        /* 图片预览：100% 原始交互 */
         .preview-box { width: 100%; border: 6px solid white; border-radius: 24px; overflow: hidden; margin: 20px 0; box-shadow: 0 12px 30px rgba(0,0,0,0.1); background: #eee; }
         #display-img { 
             width: 100%; height: auto; display: block; 
@@ -64,7 +61,6 @@
             -webkit-touch-callout: default !important;
         }
 
-        /* 👆 Step 2: 选词指引 */
         .gesture-guide {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
             background: #F2F2F7; padding: 15px; border-radius: 18px;
@@ -73,27 +69,47 @@
         .hand-icon { font-size: 1.8rem; margin-bottom: 6px; }
         .label-black { background: #333; color: white; padding: 2px 6px; border-radius: 5px; font-size: 0.7rem; font-weight: normal; }
 
-        /* 🪄 Step 3: 分析按钮 (颜色加深) */
         .magic-btn {
             background: var(--vivid-blue); color: white; border: none;
             width: 100%; padding: 22px; border-radius: 22px;
             font-size: 1.4rem; font-weight: 800;
             box-shadow: 0 8px 0px var(--blue-shadow);
-            margin: 20px 0; cursor: pointer; transition: all 0.1s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px 0 10px; cursor: pointer; transition: all 0.1s;
         }
         .magic-btn:active { transform: translateY(4px); box-shadow: 0 4px 0px var(--blue-shadow); }
 
-        /* 结果网格 */
-        #word-grid { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-top: 10px; }
+        .reset-link { color: var(--accent-gray); font-size: 0.9rem; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-bottom: 20px; }
+
+        /* --- 段落与编号样式 --- */
+        #word-grid { display: block; width: 100%; }
+        
+        .paragraph-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 20px 15px 15px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        /* 编号徽章 */
+        .paragraph-num {
+            position: absolute; top: -12px; left: 15px;
+            background: var(--text-main); color: white;
+            padding: 2px 12px; border-radius: 10px;
+            font-size: 0.8rem; font-weight: 800;
+        }
+
+        .paragraph-content { display: flex; flex-wrap: wrap; gap: 12px; }
+
         .word-item {
-            background: white; color: var(--text-main); font-size: 2rem; font-weight: 700; padding: 14px 22px;
-            border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: white; color: var(--text-main); font-size: 1.8rem; font-weight: 700; padding: 12px 18px;
+            border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             transition: all 0.2s;
         }
-        .word-item.read { background: #E5E5EA !important; color: #AEAEB2 !important; transform: scale(0.95); }
+        .word-item.read { background: #E5E5EA !important; color: #AEAEB2 !important; transform: scale(0.95); box-shadow: none; }
 
-        /* 解释卡片 Pro */
+        /* 详情弹窗 */
         #detail-view {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
             width: 85%; max-width: 350px; padding: 40px 25px;
@@ -106,10 +122,10 @@
 
         .zh-text { font-size: 5rem; margin: 0; color: #000; font-weight: 900; }
         .py-text { color: var(--action-pink); font-size: 1.8rem; font-weight: 700; margin: 10px 0 20px; }
-        .en-text { font-size: 1.2rem; color: #444; background: #F2F2F7; padding: 18px; border-radius: 18px; margin-bottom: 25px; line-height: 1.4; }
+        .en-text { font-size: 1.1rem; color: #444; background: #F2F2F7; padding: 18px; border-radius: 18px; margin-bottom: 25px; line-height: 1.4; }
         
         .speak-btn { background: var(--success-green); color: white; font-weight: 800; padding: 20px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
-        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #E5E5EA; color: #8E8E93; border: none; border-radius: 50%; font-size: 1.2rem; font-weight: bold; }
+        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #F2F2F7; color: #8E8E93; border: none; border-radius: 50%; font-size: 1.2rem; font-weight: bold; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
         .overlay.active { opacity: 1; pointer-events: auto; }
@@ -123,7 +139,6 @@
     </header>
 
     <div class="container">
-        
         <div class="glass-card">
             <div class="step-header">📸 01. 导入内容</div>
             <label for="file-input" class="photo-btn">打开相机 / 选取图片</label>
@@ -139,16 +154,17 @@
             <div class="gesture-guide">
                 <div class="action-item">
                     <div class="hand-icon">👆</div>
-                    长按识别文字<br><small>(Press & Hold)</small>
+                    长按识别文字
                 </div>
                 <div class="action-item">
                     <div class="hand-icon">🔘</div>
-                    点 <span class="label-black">Show Text</span><br>再点 <span class="label-black">Copy</span> (拷贝)
+                    点 <span class="label-black">Show Text</span><br>再点 <span class="label-black">Copy</span>
                 </div>
             </div>
         </div>
 
         <button class="magic-btn" onclick="readClipboard()">分析选中的内容 Analyze</button>
+        <span class="reset-link" onclick="resetAll()">清空当前内容 Clear All</span>
 
         <div id="word-grid"></div>
     </div>
@@ -165,14 +181,18 @@
 
 <script>
     let dictionary = {};
-    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
+    fetch('dictionary.json').then(r => r.json()).then(data => {
+        dictionary = data;
+        // 加载历史记录
+        const saved = localStorage.getItem('last_scan');
+        if(saved) processText(saved, true);
+    });
 
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
             document.getElementById('display-img').src = URL.createObjectURL(file);
             document.getElementById('image-area').classList.remove('hidden');
-            document.getElementById('word-grid').innerHTML = "";
             setTimeout(() => {
                 document.getElementById('image-area').scrollIntoView({ behavior: 'smooth' });
             }, 300);
@@ -184,6 +204,7 @@
             const text = await navigator.clipboard.readText();
             if (text && text.trim().length > 0) {
                 processText(text);
+                localStorage.setItem('last_scan', text);
             } else {
                 alert("请先在图片中长按并‘拷贝’文字内容。");
             }
@@ -192,34 +213,56 @@
         }
     }
 
-    function processText(rawText) {
-        const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
+    function processText(rawText, isHistory = false) {
         const grid = document.getElementById('word-grid');
         grid.innerHTML = "";
         
-        let i = 0;
-        const maxLen = 7; 
+        const paragraphs = rawText.split(/\n+/);
+        let pCount = 1;
 
-        while (i < text.length) {
-            let found = "";
-            for (let len = maxLen; len >= 1; len--) {
-                let chunk = text.substr(i, len);
-                if (dictionary[chunk]) {
-                    found = chunk;
-                    i += len;
-                    break;
+        paragraphs.forEach(pText => {
+            const cleanText = pText.replace(/[^\u4e00-\u9fa5]/g, '');
+            if (cleanText.length === 0) return;
+
+            // 创建带编号的包装器
+            const wrapper = document.createElement('div');
+            wrapper.className = 'paragraph-wrapper';
+            
+            const numLabel = document.createElement('div');
+            numLabel.className = 'paragraph-num';
+            numLabel.innerText = `P${pCount++}`;
+            wrapper.appendChild(numLabel);
+
+            const content = document.createElement('div');
+            content.className = 'paragraph-content';
+            
+            let i = 0;
+            const maxLen = 7; 
+
+            while (i < cleanText.length) {
+                let found = "";
+                for (let len = maxLen; len >= 1; len--) {
+                    let chunk = cleanText.substr(i, len);
+                    if (dictionary[chunk]) {
+                        found = chunk;
+                        i += len;
+                        break;
+                    }
+                }
+                if (found) {
+                    addWordItem(found, true, content);
+                } else {
+                    addWordItem(cleanText[i], false, content);
+                    i++;
                 }
             }
-            if (found) {
-                addWordItem(found, true, grid);
-            } else {
-                addWordItem(text[i], false, grid);
-                i++;
-            }
+            wrapper.appendChild(content);
+            grid.appendChild(wrapper);
+        });
+
+        if(!isHistory) {
+            setTimeout(() => { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         }
-        setTimeout(() => {
-            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
     }
 
     function addWordItem(word, isInDict, container) {
@@ -237,6 +280,13 @@
             btn.onclick = () => speak(word);
         }
         container.appendChild(btn);
+    }
+
+    function resetAll() {
+        if(confirm("确定要清空当前所有识别的词语吗？")) {
+            document.getElementById('word-grid').innerHTML = "";
+            localStorage.removeItem('last_scan');
+        }
     }
 
     function showDetail(word) {
