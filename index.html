@@ -3,185 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>互动点读笔 Pro</title>
-    <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+    <title>Apple 增强点读笔</title>
     <style>
-        :root { --primary: #007aff; --highlight: rgba(0, 122, 255, 0.3); }
-        body { font-family: -apple-system, sans-serif; background: #f2f2f7; margin: 0; overflow-x: hidden; }
+        :root { --primary: #007aff; --bg: #f2f2f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; text-align: center; }
         .hidden { display: none !important; }
 
-        /* 顶部控制栏 */
-        .controls { position: sticky; top: 0; background: white; padding: 15px; display: flex; gap: 10px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; text-align: center; }
-        .btn-blue { background: var(--primary); color: white; }
-        .btn-gray { background: #e5e5ea; color: #333; }
-
-        /* 图片视图容器 */
-        #container { position: relative; width: 100%; margin-top: 5px; display: inline-block; }
-        #source-img { width: 100%; display: block; }
+        /* 引导区域 */
+        .guide-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .hint { font-size: 0.9rem; color: #8e8e93; line-height: 1.4; margin: 15px 0; }
         
-        /* 悬浮文字层 */
-        .word-overlay {
-            position: absolute;
-            background: var(--highlight);
-            border: 1px solid var(--primary);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            z-index: 10;
+        /* 核心动作：粘贴 */
+        #paste-box { 
+            width: 100%; height: 80px; border: 2px dashed var(--primary); 
+            border-radius: 15px; background: #fff; color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; cursor: pointer; margin-bottom: 20px;
         }
-        .word-overlay:active { background: rgba(0, 122, 255, 0.6); transform: scale(1.1); }
-        .word-overlay:hover { background: rgba(0, 122, 255, 0.4); }
 
-        /* 纯文字模式列表 */
-        .list-view { padding: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .list-item { background: white; padding: 15px 20px; border-radius: 12px; font-size: 1.8rem; border: 2px solid #ddd; }
+        /* 结果生成 */
+        .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+        .word-btn { 
+            font-size: 2.2rem; padding: 15px 25px; background: white; border-radius: 15px; 
+            border: 2px solid #d1d1d6; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
 
-        /* 详情弹窗 */
+        /* 详情卡片 */
         #detail-view { 
             position: fixed; bottom: 0; left: 0; right: 0; background: white; 
-            padding: 30px; border-radius: 20px 20px 0 0; 
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.2); text-align: center; z-index: 2000; 
+            padding: 30px; border-radius: 25px 25px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 100; 
         }
-
-        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 3000; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 20px; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .pinyin { color: var(--primary); font-size: 1.6rem; font-weight: bold; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-<div class="controls">
-    <label for="camera-input" class="btn btn-blue">📷 拍照 / Scan</label>
-    <button class="btn btn-gray" onclick="toggleView()">📖 切换模式 / View</button>
-    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
-</div>
+    <header>
+        <h1 style="margin:0;">点读笔 Pro</h1>
+        <p style="color:#666;">借用 Apple Live Text 达到 100% 准确度</p>
+    </header>
 
-<div id="loading" class="hidden">
-    <div class="spinner"></div>
-    <p>正在分析文字位置...<br>Analyzing Layout...</p>
-</div>
+    <div class="guide-card">
+        <p class="hint">
+            <strong>第一步：</strong>点击拍照，长按图片中的文字点击“全选”并“拷贝”<br>
+            <strong>第二步：</strong>回到网页，点击下方蓝色框直接粘贴
+        </p>
+        
+        <label for="camera-input" style="background:var(--primary); color:white; padding:15px; border-radius:12px; display:inline-block; margin-bottom:15px; width:80%;">
+            📷 打开相机 (Live Text 模式)
+        </label>
+        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
 
-<div id="image-view">
-    <div id="container">
-        <img id="source-img" src="" alt="">
-        <div id="overlay-layer"></div>
+        <div id="paste-box">
+            点击这里粘贴 (Paste Here)
+        </div>
     </div>
-</div>
 
-<div id="list-view" class="hidden list-view"></div>
+    <div id="word-grid" class="word-grid"></div>
 
-<div id="detail-view" class="hidden">
-    <button onclick="closeDetail()" style="float:right; border:none; background:none; font-size:1.5rem;">✕</button>
-    <h2 id="card-zh" style="font-size:4rem; margin:10px 0;">--</h2>
-    <p id="card-py" style="color:var(--primary); font-size:1.5rem; font-weight:bold;">--</p>
-    <p id="card-en" style="color:#666; font-size:1.2rem; margin-bottom:20px;">--</p>
-    <button class="btn btn-blue" style="width:100%" onclick="speak()">🔊 听发音 / Listen</button>
-</div>
+    <div id="detail-view" class="hidden">
+        <button onclick="this.parentElement.classList.add('hidden')" style="float:right; border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
+        <h2 id="card-zh" style="font-size:4.5rem; margin:10px 0;">--</h2>
+        <p id="card-py" class="pinyin">--</p>
+        <p id="card-en" style="color:#666; font-size:1.2rem; margin-bottom:20px;">--</p>
+        <button onclick="speak()" style="background:var(--primary); color:white; border:none; width:100%; padding:20px; border-radius:15px; font-size:1.2rem; font-weight:600;">🔊 听发音 / Listen</button>
+    </div>
 
 <script>
     let dictionary = {};
-    let isImageView = true;
-    let scanResults = []; // 存储带坐标的原始数据
-
     fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
-    const cameraInput = document.getElementById('camera-input');
-    const sourceImg = document.getElementById('source-img');
-    const overlayLayer = document.getElementById('overlay-layer');
-    const listView = document.getElementById('list-view');
+    const pasteBox = document.getElementById('paste-box');
+    const wordGrid = document.getElementById('word-grid');
 
-    cameraInput.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // 监听粘贴事件
+    window.addEventListener('paste', (e) => {
+        const text = e.clipboardData.getData('text');
+        if (text) processText(text);
+    });
 
-        document.getElementById('loading').classList.remove('hidden');
-        overlayLayer.innerHTML = "";
-        listView.innerHTML = "";
-        
-        const imgUrl = URL.createObjectURL(file);
-        sourceImg.src = imgUrl;
-
-        sourceImg.onload = async () => {
-            const worker = await Tesseract.createWorker('chi_sim');
-            // 获取详细数据（包含每个字的坐标）
-            const { data } = await worker.recognize(sourceImg);
-            await worker.terminate();
-
-            scanResults = data.words; // Tesseract 的“词”识别
-            renderAll();
-            document.getElementById('loading').classList.add('hidden');
-        };
+    // 也可以手动触发粘贴（iPad 兼容性）
+    pasteBox.onclick = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            processText(text);
+        } catch (err) {
+            alert("请直接在屏幕长按选择‘粘贴’");
+        }
     };
 
-    function renderAll() {
-        overlayLayer.innerHTML = "";
-        listView.innerHTML = "";
-        const uniqueWords = new Set();
+    function processText(rawText) {
+        // 只保留汉字
+        const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
+        wordGrid.innerHTML = "";
+        const currentScanSet = new Set();
+        let i = 0;
 
-        // 获取图片实际显示的宽高
-        const displayWidth = sourceImg.clientWidth;
-        const displayHeight = sourceImg.clientHeight;
-        const naturalWidth = sourceImg.naturalWidth;
-        const naturalHeight = sourceImg.naturalHeight;
+        while (i < text.length) {
+            let pair = text[i] + (text[i+1] || "");
+            let found = "";
 
-        const scaleX = displayWidth / naturalWidth;
-        const scaleY = displayHeight / naturalHeight;
-
-        scanResults.forEach(item => {
-            const cleanText = item.text.replace(/[^\u4e00-\u9fa5]/g, '');
-            if (!cleanText || !dictionary[cleanText]) return;
-
-            // 1. 渲染图片悬浮层
-            const box = item.bbox;
-            const el = document.createElement('div');
-            el.className = 'word-overlay';
-            el.style.left = (box.x0 * scaleX) + 'px';
-            el.style.top = (box.y0 * scaleY) + 'px';
-            el.style.width = ((box.x1 - box.x0) * scaleX) + 'px';
-            el.style.height = ((box.y1 - box.y0) * scaleY) + 'px';
-            el.onclick = () => showDetail(cleanText, el);
-            overlayLayer.appendChild(el);
-
-            // 2. 渲染去重列表模式
-            if (!uniqueWords.has(cleanText)) {
-                uniqueWords.add(cleanText);
-                const li = document.createElement('div');
-                li.className = 'list-item';
-                li.innerText = cleanText;
-                li.onclick = () => showDetail(cleanText);
-                listView.appendChild(li);
+            if (dictionary[pair]) {
+                found = pair;
+                i += 2;
+            } else if (dictionary[text[i]]) {
+                found = text[i];
+                i += 1;
+            } else {
+                i += 1;
+                continue;
             }
-        });
+
+            if (found && !currentScanSet.has(found)) {
+                currentScanSet.add(found);
+                const btn = document.createElement('div');
+                btn.className = 'word-btn';
+                btn.innerText = found;
+                btn.onclick = () => showDetail(found);
+                wordGrid.appendChild(btn);
+            }
+        }
     }
 
-    function toggleView() {
-        isImageView = !isImageView;
-        document.getElementById('image-view').classList.toggle('hidden', !isImageView);
-        document.getElementById('list-view').classList.toggle('hidden', isImageView);
-        if (isImageView) renderAll(); // 重新计算位置以防旋转屏幕
-    }
-
-    function showDetail(word, element) {
+    function showDetail(word) {
         const entry = dictionary[word];
         document.getElementById('card-zh').innerText = word;
         document.getElementById('card-py').innerText = entry.pinyin;
         document.getElementById('card-en').innerText = entry.english;
         document.getElementById('detail-view').classList.remove('hidden');
-        
         speak(word);
-
-        // 3秒后自动取消高亮反馈 (针对图片模式)
-        if (element) {
-            element.style.background = 'rgba(255, 204, 0, 0.6)';
-            setTimeout(() => {
-                element.style.background = '';
-            }, 3000);
-        }
     }
-
-    function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); }
 
     function speak(t) {
         const text = t || document.getElementById('card-zh').innerText;
@@ -190,9 +141,6 @@
         msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
-
-    // 处理 iPad 旋转时坐标偏移
-    window.onresize = () => { if(isImageView && sourceImg.src) renderAll(); };
 </script>
 </body>
 </html>
