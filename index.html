@@ -4,127 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Magic Pen</title>
+    <title>Magic Pen | 华文点读宝</title>
     <style>
         :root {
             --yellow: #FFEF00;
             --pink: #FF6AD5;
             --blue: #00E5FF;
             --green: #69FF94;
-            --glass: rgba(255, 255, 255, 0.7);
+            --glass: rgba(255, 255, 255, 0.8);
+            --border: rgba(255, 255, 255, 0.4);
         }
 
         body {
             font-family: 'PingFang SC', system-ui, sans-serif;
-            background: linear-gradient(135deg, var(--yellow), #FFD600);
+            background: linear-gradient(160deg, var(--yellow), #FFD600);
             margin: 0; padding: 0; min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 磨砂玻璃容器 */
-        .glass-card {
+        /* 磨砂玻璃卡片 */
+        .glass {
             background: var(--glass);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--border);
             border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        header { width: 100%; padding: 20px 0; text-align: center; }
-        h1 { margin: 0; font-size: 1.8rem; color: #333; text-shadow: 2px 2px 0px #fff; }
+        header { width: 100%; padding: 25px 0 10px; text-align: center; }
+        h1 { margin: 0; font-size: 1.8rem; color: #333; letter-spacing: 1px; }
 
-        .container { width: 92%; max-width: 500px; }
+        .container { width: 90%; max-width: 500px; }
 
-        /* 步骤引导 */
-        .instruction {
-            padding: 15px; margin-bottom: 15px;
-        }
-        .step-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 0.95rem; font-weight: 600; color: #444; }
-        .icon-circle { 
-            width: 30px; height: 30px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; color: white; flex-shrink: 0;
-        }
+        /* 步骤板 */
+        .instruction-box { padding: 20px; margin-bottom: 20px; }
+        .step-tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1rem; margin-bottom: 12px; color: #444; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
 
-        /* 拍照区 */
         .photo-btn {
-            background: var(--pink); color: white;
-            padding: 12px 24px; border-radius: 18px; border: none;
-            font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 0px #C752A5; margin: 10px 0;
-            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--pink); color: white; border: none;
+            padding: 14px 28px; border-radius: 20px; font-size: 1.1rem; font-weight: 900;
+            box-shadow: 0 5px 0px #D645AB; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;
         }
 
         /* 图片预览区 */
-        .preview-box {
-            width: 100%; border: 4px solid white; border-radius: 20px;
-            overflow: hidden; margin: 15px 0; position: relative;
-        }
+        .preview-box { width: 100%; border: 6px solid white; border-radius: 25px; overflow: hidden; margin: 15px 0; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         #display-img { width: 100%; height: auto; display: block; -webkit-user-select: text; }
 
-        /* 特别指示：Show Text */
-        .guide-label {
-            background: #333; color: white; padding: 4px 10px; border-radius: 8px;
-            font-size: 0.8rem; margin: 0 3px; display: inline-block;
-        }
+        .label-black { background: #333; color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; margin: 0 2px; }
 
         /* 魔法按钮 */
         .magic-btn {
-            background: var(--blue); color: white;
-            padding: 18px; width: 100%; border-radius: 20px; border: none;
-            font-size: 1.3rem; font-weight: 900; cursor: pointer;
-            box-shadow: 0 6px 0px #00A8BB; margin: 15px 0;
-            transition: all 0.1s;
+            background: var(--blue); color: white; border: none;
+            padding: 20px; width: 100%; border-radius: 24px; font-size: 1.4rem; font-weight: 900;
+            box-shadow: 0 6px 0px #00B4CC; margin: 20px 0; transition: 0.1s;
         }
-        .magic-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px #00A8BB; }
+        .magic-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px #00B4CC; }
 
-        /* 单词按钮网格 */
+        /* 单词按钮网格 - 顺序显示 */
         #word-grid {
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 12px; padding-bottom: 150px;
+            display: flex; flex-wrap: wrap; justify-content: flex-start;
+            gap: 12px; padding: 10px 5px 150px;
         }
         .word-item {
-            background: white; color: #333;
-            font-size: 2.2rem; padding: 15px 25px;
-            border-radius: 20px; border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: white; color: #333; font-size: 2rem; padding: 14px 22px;
+            border-radius: 20px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes bounceIn { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
 
-        /* 弹出卡片 */
+        /* 🌟 独立的悬浮词语解释卡片 */
         #detail-view {
-            position: fixed; bottom: -100%; left: 0; right: 0;
-            background: white; padding: 40px 20px;
-            border-radius: 35px 35px 0 0; z-index: 1000;
-            text-align: center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
+            width: 85%; max-width: 350px; padding: 40px 25px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 2px solid white; border-radius: 35px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            z-index: 2000; text-align: center;
+            opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        #detail-view.open { bottom: 0; }
-        .zh-big { font-size: 5.5rem; margin: 0; color: #333; }
-        .py-big { color: var(--pink); font-size: 2.2rem; font-weight: bold; margin: 5px 0; }
-        .en-box { background: #F2F2F7; padding: 15px; border-radius: 15px; font-size: 1.4rem; margin: 20px 0; }
+        #detail-view.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+
+        .zh-text { font-size: 5rem; margin: 0; color: #222; font-weight: 900; }
+        .py-text { color: #FF00A0; font-size: 1.8rem; font-weight: bold; margin: 5px 0 15px; }
+        .en-text { font-size: 1.3rem; color: #555; background: rgba(0,0,0,0.04); padding: 12px; border-radius: 15px; margin-bottom: 25px; }
+        
         .speak-btn {
-            background: var(--green); color: #000; font-weight: 900;
-            padding: 20px; width: 80%; border-radius: 25px; border: none; font-size: 1.3rem;
+            background: var(--green); color: #006400; font-weight: 900;
+            padding: 18px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem;
+        }
+
+        /* 关闭按钮 - 深灰色更显眼 */
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; width: 40px; height: 40px;
+            background: #555; color: white; border: none; border-radius: 50%;
+            font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
         }
 
         .hidden { display: none !important; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .overlay.active { opacity: 1; pointer-events: auto; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🍭 Magic Reading Pen</h1>
+        <h1>✨ Magic Pen 点读笔</h1>
     </header>
 
     <div class="container">
-        <div class="glass-card instruction">
-            <div class="step-row">
-                <div class="icon-circle" style="background:var(--pink)">1</div>
-                <div>拍照 / Take a Photo</div>
-            </div>
-            <label for="file-input" class="photo-btn">📷 Snap Photo</label>
+        <div class="glass instruction-box">
+            <div class="step-tag"><span class="dot" style="background:var(--pink)"></span>Step 1: Take Photo</div>
+            <label for="file-input" class="photo-btn">📷 拍照 (Snap)</label>
             <input type="file" id="file-input" accept="image/*" class="hidden">
         </div>
 
@@ -132,34 +125,31 @@
             <img id="display-img" src="">
         </div>
 
-        <div class="glass-card instruction">
-            <div class="step-row">
-                <div class="icon-circle" style="background:var(--blue)">2</div>
-                <div>长按图片中你想学习的字</div>
-            </div>
-            <div style="font-size:0.85rem; color:#555; padding-left:40px;">
-                按下 <span class="guide-label">Show Text</span> 按钮，<br>
-                然后点击 <span class="guide-label">Copy</span> 拷贝文字。
+        <div class="glass instruction-box">
+            <div class="step-tag"><span class="dot" style="background:var(--blue)"></span>Step 2: Copy Words</div>
+            <div style="font-size:0.9rem; color:#444; padding-left:5px; line-height:1.5;">
+                1. 长按图里的字，点 <span class="label-black">Show Text</span><br>
+                2. 选好字后，点击 <span class="label-black">Copy</span> (拷贝)
             </div>
         </div>
 
-        <button class="magic-btn" onclick="readClipboard()">🪄 出来吧！Words!</button>
+        <button class="magic-btn" onclick="readClipboard()">🪄 出来吧！Magic!</button>
 
         <div id="word-grid"></div>
     </div>
 
+    <div id="mask" class="overlay" onclick="closeDetail()"></div>
+
     <div id="detail-view">
-        <button onclick="closeDetail()" style="position:absolute;top:20px;right:20px;border:none;background:none;font-size:2rem;color:#ddd;">✕</button>
-        <h2 class="zh-big" id="card-zh">--</h2>
-        <p class="py-big" id="card-py">--</p>
-        <div class="en-box" id="card-en">--</div>
+        <button onclick="closeDetail()" class="close-btn">✕</button>
+        <h2 class="zh-text" id="card-zh">--</h2>
+        <p class="py-text" id="card-py">--</p>
+        <div class="en-text" id="card-en">--</div>
         <button class="speak-btn" onclick="speak()">🔊 听读音 (Listen)</button>
     </div>
 
 <script>
     let dictionary = {};
-    const shownSet = new Set();
-
     fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
     document.getElementById('file-input').onchange = (e) => {
@@ -168,7 +158,6 @@
             document.getElementById('display-img').src = URL.createObjectURL(file);
             document.getElementById('image-area').classList.remove('hidden');
             document.getElementById('word-grid').innerHTML = "";
-            shownSet.clear();
         }
     };
 
@@ -176,22 +165,21 @@
         try {
             const text = await navigator.clipboard.readText();
             if (text) {
-                processText(text);
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                processText(text); // 这里不再去重，完全按顺序
             } else {
-                alert("Don't forget to COPY the text first! 记得先‘拷贝’文字哦！");
+                alert("记得先长按图片‘拷贝’文字哦！\nCopy the text first!");
             }
         } catch (err) {
-            alert("Tap 'Allow Paste' to play!");
+            alert("Please allow Paste to see words!");
         }
     }
 
     function processText(rawText) {
         const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
         const grid = document.getElementById('word-grid');
+        grid.innerHTML = ""; // 每次按魔法按钮，刷新显示这一组文字
         
         let i = 0;
-        let count = 0;
         while (i < text.length) {
             let pair = text[i] + (text[i+1] || "");
             let found = "";
@@ -200,14 +188,12 @@
             else if (dictionary[text[i]]) { found = text[i]; i += 1; } 
             else { i += 1; continue; }
 
-            if (found && !shownSet.has(found)) {
-                shownSet.add(found);
+            if (found) {
                 const btn = document.createElement('div');
                 btn.className = 'word-item';
                 btn.innerText = found;
                 btn.onclick = () => showDetail(found);
                 grid.appendChild(btn);
-                count++;
             }
         }
     }
@@ -218,11 +204,16 @@
         document.getElementById('card-zh').innerText = word;
         document.getElementById('card-py').innerText = entry.pinyin;
         document.getElementById('card-en').innerText = entry.english;
-        document.getElementById('detail-view').classList.add('open');
+        
+        document.getElementById('detail-view').classList.add('active');
+        document.getElementById('mask').classList.add('active');
         speak(word);
     }
 
-    function closeDetail() { document.getElementById('detail-view').classList.remove('open'); }
+    function closeDetail() { 
+        document.getElementById('detail-view').classList.remove('active'); 
+        document.getElementById('mask').classList.remove('active');
+    }
 
     function speak(t) {
         const text = t || document.getElementById('card-zh').innerText;
