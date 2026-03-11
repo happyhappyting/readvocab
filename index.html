@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>精准点读笔 | Reading Pen</title>
+    <title>点读笔</title>
     <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
     <style>
         :root { --primary: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 100px; }
         .hidden { display: none !important; }
         
-        /* UI Components */
         .btn-scan { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 16px; font-size: 1.2rem; font-weight: 600; width: 100%; cursor: pointer; text-align: center; }
         .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 25px 0; }
         
-        /* 词组样式：如果是词组，给一个明显的视觉包裹感 */
         .word-btn { 
             font-size: 2.2rem; padding: 12px 20px; background: white; border-radius: 12px;
             border: 2px solid #d1d1d6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer;
@@ -34,15 +32,15 @@
 
     <header style="text-align:center; margin-bottom:20px;">
         <h1 style="margin:0;">点读笔</h1>
-        <p style="color:#666; font-size:0.9rem;">字典校验模式 (Only Real Words)</p>
+        <p style="color:#666; font-size:0.9rem;">去重识别模式 (Unique Words Only)</p>
     </header>
 
-    <label for="camera-input" class="btn-scan" style="display:block;">📷 拍照识别 / Scan Text</label>
+    <label for="camera-input" class="btn-scan" style="display:block;">📷 拍照 / Take Photo</label>
     <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
 
     <div id="loading" class="hidden">
         <div class="spinner"></div>
-        <p>正在精准识别...<br>Filtering noise...</p>
+        <p>正在识别... / Processing...</p>
     </div>
 
     <div id="word-grid" class="word-grid"></div>
@@ -69,7 +67,6 @@
     const canvas = document.getElementById('proc-canvas');
     const ctx = canvas.getContext('2d');
 
-    // 1. 加载字典
     fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
     cameraInput.onchange = async (e) => {
@@ -82,54 +79,56 @@
         const img = new Image();
         img.src = URL.createObjectURL(file);
         img.onload = async () => {
-            // 2. 增强图像：提高对比度，让字更黑，背景更白
             canvas.width = img.width;
             canvas.height = img.height;
-            ctx.filter = 'grayscale(1) contrast(2) brightness(1)'; // 增强对比度
+            ctx.filter = 'grayscale(1) contrast(2) brightness(1)';
             ctx.drawImage(img, 0, 0);
 
             const worker = await Tesseract.createWorker('chi_sim');
-            // 设置识别参数，只允许识别常见汉字，减少乱码
-            await worker.setParameters({
-                tessedit_char_whitelist: '的一是在不了有和人这中大来上个国我到说们为子和主时里后自以会那对着而起级过家学生作业苹果', // 可以在这里增加常用字
-            });
-            
             const { data: { text } } = await worker.recognize(canvas);
             await worker.terminate();
 
-            // 3. 过滤非中文字符
             const rawText = text.replace(/[^\u4e00-\u9fa5]/g, '');
             
-            // 4. 字典校验匹配逻辑
-            processWithDict(rawText);
+            // 执行带去重逻辑的字典匹配
+            processWithUniqueDict(rawText);
             document.getElementById('loading').classList.add('hidden');
         };
     };
 
-    function processWithDict(text) {
+    function processWithUniqueDict(text) {
         const grid = document.getElementById('word-grid');
+        const currentScanSet = new Set(); // 核心：用于记录本次扫描已经显示过的词
         let i = 0;
 
         while (i < text.length) {
             let char1 = text[i];
             let char2 = text[i+1] || "";
             let pair = char1 + char2;
+            let foundWord = "";
+            let isPair = false;
 
-            // 逻辑：
-            // A. 如果两个字组成的词在字典里（如：作业） -> 作为一个大按钮
+            // 1. 优先尝试匹配词组
             if (char2 && dictionary[pair]) {
-                addBtn(pair, true);
+                foundWord = pair;
+                isPair = true;
                 i += 2;
             } 
-            // B. 如果单个字在字典里（排除掉 OCR 乱编的怪字） -> 作为一个按钮
+            // 2. 其次匹配单字
             else if (dictionary[char1]) {
-                addBtn(char1, false);
+                foundWord = char1;
                 i += 1;
             } 
-            // C. 如果这个字在字典里查不到，说明大概率是识别错了 -> 忽略它
+            // 3. 都不匹配则跳过
             else {
-                console.log("忽略疑似错误识别:", char1);
                 i += 1;
+                continue;
+            }
+
+            // 4. 去重判断：如果这个词在本次扫描中还没出现过，就添加它
+            if (foundWord && !currentScanSet.has(foundWord)) {
+                addBtn(foundWord, isPair);
+                currentScanSet.add(foundWord);
             }
         }
     }
@@ -150,6 +149,8 @@
         document.getElementById('view-detail').classList.remove('hidden');
         
         speak(word);
+        
+        // 历史记录也去重
         if(!historySet.has(word)) {
             historySet.add(word);
             const item = document.createElement('div');
