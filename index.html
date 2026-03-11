@@ -2,70 +2,88 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>网页互动点读笔</title>
+    <title>iPad 点读笔 Pro</title>
     <style>
         :root { --primary: #007aff; --bg: #f2f2f7; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .hidden { display: none !important; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        
+        /* 顶部控制栏 */
+        header { width: 100%; background: white; padding: 15px 0; text-align: center; box-shadow: 0 1px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .btn-upload { background: var(--primary); color: white; padding: 12px 30px; border-radius: 25px; font-weight: 600; cursor: pointer; display: inline-block; box-shadow: 0 4px 10px rgba(0,122,255,0.2); }
 
-        /* 顶部上传区 */
-        header { width: 100%; background: white; padding: 15px 0; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .btn-upload { background: var(--primary); color: white; padding: 10px 25px; border-radius: 20px; font-weight: 600; cursor: pointer; display: inline-block; }
+        /* 图片区域 - 关键点：开启 Live Text */
+        .image-container { 
+            width: 95%; max-width: 600px; margin: 20px auto; background: white; 
+            border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        #display-img { 
+            width: 100%; height: auto; display: block;
+            /* 强制开启 iOS 文字选择 */
+            -webkit-user-select: text !important;
+            user-select: text !important;
+            pointer-events: auto !important;
+            touch-action: auto !important;
+        }
 
-        /* 图片显示区 */
-        .image-container { width: 95%; max-width: 600px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); line-height: 0; }
-        #display-img { width: 100%; height: auto; -webkit-user-select: text; user-select: text; } /* 关键：开启文字选择 */
+        .hint-card { width: 85%; font-size: 0.85rem; color: #666; text-align: center; margin: 10px 0; line-height: 1.5; }
 
-        /* 提示层 */
-        .hint-card { width: 90%; max-width: 400px; background: #e1f0ff; color: #0056b3; padding: 12px; border-radius: 12px; font-size: 0.85rem; margin-bottom: 20px; text-align: center; }
+        /* 单词按钮 */
+        #word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 20px; width: 100%; box-sizing: border-box; padding-bottom: 120px; }
+        .word-btn { 
+            font-size: 2.2rem; padding: 15px 22px; background: white; border-radius: 16px; 
+            border: 2px solid #e5e5ea; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .word-btn:active { transform: scale(0.9); background: #f0f7ff; border-color: var(--primary); }
 
-        /* 单词按钮区 */
-        #word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 95%; padding-bottom: 120px; }
-        .word-btn { font-size: 2rem; padding: 12px 20px; background: white; border-radius: 12px; border: 2px solid #ddd; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        /* 底部详情 */
-        #detail-view { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 25px; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); z-index: 200; text-align: center; }
-        .pinyin { color: var(--primary); font-size: 1.6rem; font-weight: bold; margin: 5px 0; }
-        .english { color: #666; margin-bottom: 15px; }
+        /* 详情底部弹窗 */
+        #detail-view { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 30px; border-radius: 25px 25px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); z-index: 200; text-align: center; }
+        .pinyin { color: var(--primary); font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
+        .english { color: #8e8e93; font-size: 1.2rem; margin-bottom: 25px; }
+        
+        .btn-speak { background: var(--primary); color: white; border: none; width: 100%; padding: 20px; border-radius: 15px; font-size: 1.3rem; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <header>
-        <label for="file-input" class="btn-upload">📷 拍照/选图</label>
-        <input type="file" id="file-input" accept="image/*" class="hidden">
-    </header>
+<header>
+    <label for="file-input" class="btn-upload">📷 拍照 / 上传图片</label>
+    <input type="file" id="file-input" accept="image/*" class="hidden">
+</header>
 
-    <div id="image-area" class="image-container hidden">
-        <img id="display-img" src="">
-    </div>
+<div id="image-area" class="image-container hidden">
+    <img id="display-img" src="">
+</div>
 
-    <div class="hint-card">
-        💡 <b>操作：</b>直接长按图片里的字，点击“拷贝”<br>
-        下方会自动出现对应的读音和翻译
-    </div>
+<div class="hint-card">
+    <b>iPad 操作提示：</b><br>
+    长按图片上的文字选择并“拷贝”<br>
+    拷贝后，网页会自动识别并显示下方按钮
+</div>
 
-    <div id="word-grid"></div>
+<div id="word-grid"></div>
 
-    <div id="detail-view" class="hidden">
-        <button onclick="this.parentElement.classList.add('hidden')" style="float:right; border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
-        <h2 id="card-zh" style="font-size:3.5rem; margin:0;">--</h2>
-        <p id="card-py" class="pinyin">--</p>
-        <p id="card-en" class="english">--</p>
-        <button onclick="speak()" style="background:var(--primary); color:white; border:none; width:100%; padding:15px; border-radius:12px; font-size:1.2rem; font-weight:600;">🔊 听发音</button>
-    </div>
+<div id="detail-view" class="hidden">
+    <button onclick="closeDetail()" style="float:right; border:none; background:none; font-size:2rem; color:#d1d1d6;">✕</button>
+    <h2 id="card-zh" style="font-size:4rem; margin:0;">--</h2>
+    <p id="card-py" class="pinyin">--</p>
+    <p id="card-en" class="english">--</p>
+    <button class="btn-speak" onclick="speak()">🔊 听读音</button>
+</div>
 
 <script>
     let dictionary = {};
     const shownSet = new Set();
 
-    // 1. 加载字典
-    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
+    // 1. 初始化字典
+    fetch('dictionary.json')
+        .then(r => r.json())
+        .then(data => dictionary = data)
+        .catch(() => alert("未找到 dictionary.json"));
 
-    // 2. 处理图片上传
+    // 2. 上传显示
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -73,30 +91,28 @@
             const img = document.getElementById('display-img');
             img.src = url;
             document.getElementById('image-area').classList.remove('hidden');
-            // 清空之前的词，方便新一轮学习
             document.getElementById('word-grid').innerHTML = "";
             shownSet.clear();
         }
     };
 
-    // 3. 核心：监听系统剪贴板变化
-    // 当用户在图片上“拷贝”文字时，回到页面会自动触发
-    window.addEventListener('focus', async () => {
+    // 3. 核心：监听剪贴板逻辑
+    // 当你拷贝完文字，手指离开屏幕回到网页时触发
+    async function checkClipboard() {
         try {
             const text = await navigator.clipboard.readText();
             if (text) processText(text);
         } catch (err) {
-            console.log("等待粘贴...");
+            console.log("Clipboard access denied or empty");
         }
-    });
+    }
 
-    // 兼容手动：也可以点一下空白处触发
-    document.body.onclick = async () => {
-        const text = await navigator.clipboard.readText().catch(() => "");
-        if (text) processText(text);
-    };
+    // 多重监听：切回页面、点击屏幕、甚至是长按释放
+    window.addEventListener('focus', checkClipboard);
+    document.addEventListener('click', checkClipboard);
 
     function processText(rawText) {
+        // 只留汉字
         const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
         const grid = document.getElementById('word-grid');
         
@@ -119,7 +135,7 @@
                 btn.className = 'word-btn';
                 btn.innerText = found;
                 btn.onclick = (e) => {
-                    e.stopPropagation(); // 防止触发 body.onclick
+                    e.stopPropagation();
                     showDetail(found);
                 };
                 grid.appendChild(btn);
@@ -135,6 +151,8 @@
         document.getElementById('detail-view').classList.remove('hidden');
         speak(word);
     }
+
+    function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); }
 
     function speak(t) {
         const text = t || document.getElementById('card-zh').innerText;
