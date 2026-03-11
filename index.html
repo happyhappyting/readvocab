@@ -3,124 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Apple 增强点读笔</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>网页互动点读笔</title>
     <style>
         :root { --primary: #007aff; --bg: #f2f2f7; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; text-align: center; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .hidden { display: none !important; }
 
-        /* 引导区域 */
-        .guide-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .hint { font-size: 0.9rem; color: #8e8e93; line-height: 1.4; margin: 15px 0; }
-        
-        /* 核心动作：粘贴 */
-        #paste-box { 
-            width: 100%; height: 80px; border: 2px dashed var(--primary); 
-            border-radius: 15px; background: #fff; color: var(--primary);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; cursor: pointer; margin-bottom: 20px;
-        }
+        /* 顶部上传区 */
+        header { width: 100%; background: white; padding: 15px 0; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .btn-upload { background: var(--primary); color: white; padding: 10px 25px; border-radius: 20px; font-weight: 600; cursor: pointer; display: inline-block; }
 
-        /* 结果生成 */
-        .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
-        .word-btn { 
-            font-size: 2.2rem; padding: 15px 25px; background: white; border-radius: 15px; 
-            border: 2px solid #d1d1d6; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+        /* 图片显示区 */
+        .image-container { width: 95%; max-width: 600px; margin: 20px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); line-height: 0; }
+        #display-img { width: 100%; height: auto; -webkit-user-select: text; user-select: text; } /* 关键：开启文字选择 */
 
-        /* 详情卡片 */
-        #detail-view { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: white; 
-            padding: 30px; border-radius: 25px 25px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 100; 
-        }
-        .pinyin { color: var(--primary); font-size: 1.6rem; font-weight: bold; margin: 10px 0; }
+        /* 提示层 */
+        .hint-card { width: 90%; max-width: 400px; background: #e1f0ff; color: #0056b3; padding: 12px; border-radius: 12px; font-size: 0.85rem; margin-bottom: 20px; text-align: center; }
+
+        /* 单词按钮区 */
+        #word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 95%; padding-bottom: 120px; }
+        .word-btn { font-size: 2rem; padding: 12px 20px; background: white; border-radius: 12px; border: 2px solid #ddd; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* 底部详情 */
+        #detail-view { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 25px; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); z-index: 200; text-align: center; }
+        .pinyin { color: var(--primary); font-size: 1.6rem; font-weight: bold; margin: 5px 0; }
+        .english { color: #666; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 style="margin:0;">点读笔 Pro</h1>
-        <p style="color:#666;">借用 Apple Live Text 达到 100% 准确度</p>
+        <label for="file-input" class="btn-upload">📷 拍照/选图</label>
+        <input type="file" id="file-input" accept="image/*" class="hidden">
     </header>
 
-    <div class="guide-card">
-        <p class="hint">
-            <strong>第一步：</strong>点击拍照，长按图片中的文字点击“全选”并“拷贝”<br>
-            <strong>第二步：</strong>回到网页，点击下方蓝色框直接粘贴
-        </p>
-        
-        <label for="camera-input" style="background:var(--primary); color:white; padding:15px; border-radius:12px; display:inline-block; margin-bottom:15px; width:80%;">
-            📷 打开相机 (Live Text 模式)
-        </label>
-        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
-
-        <div id="paste-box">
-            点击这里粘贴 (Paste Here)
-        </div>
+    <div id="image-area" class="image-container hidden">
+        <img id="display-img" src="">
     </div>
 
-    <div id="word-grid" class="word-grid"></div>
+    <div class="hint-card">
+        💡 <b>操作：</b>直接长按图片里的字，点击“拷贝”<br>
+        下方会自动出现对应的读音和翻译
+    </div>
+
+    <div id="word-grid"></div>
 
     <div id="detail-view" class="hidden">
         <button onclick="this.parentElement.classList.add('hidden')" style="float:right; border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
-        <h2 id="card-zh" style="font-size:4.5rem; margin:10px 0;">--</h2>
+        <h2 id="card-zh" style="font-size:3.5rem; margin:0;">--</h2>
         <p id="card-py" class="pinyin">--</p>
-        <p id="card-en" style="color:#666; font-size:1.2rem; margin-bottom:20px;">--</p>
-        <button onclick="speak()" style="background:var(--primary); color:white; border:none; width:100%; padding:20px; border-radius:15px; font-size:1.2rem; font-weight:600;">🔊 听发音 / Listen</button>
+        <p id="card-en" class="english">--</p>
+        <button onclick="speak()" style="background:var(--primary); color:white; border:none; width:100%; padding:15px; border-radius:12px; font-size:1.2rem; font-weight:600;">🔊 听发音</button>
     </div>
 
 <script>
     let dictionary = {};
+    const shownSet = new Set();
+
+    // 1. 加载字典
     fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
-    const pasteBox = document.getElementById('paste-box');
-    const wordGrid = document.getElementById('word-grid');
-
-    // 监听粘贴事件
-    window.addEventListener('paste', (e) => {
-        const text = e.clipboardData.getData('text');
-        if (text) processText(text);
-    });
-
-    // 也可以手动触发粘贴（iPad 兼容性）
-    pasteBox.onclick = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            processText(text);
-        } catch (err) {
-            alert("请直接在屏幕长按选择‘粘贴’");
+    // 2. 处理图片上传
+    document.getElementById('file-input').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            const img = document.getElementById('display-img');
+            img.src = url;
+            document.getElementById('image-area').classList.remove('hidden');
+            // 清空之前的词，方便新一轮学习
+            document.getElementById('word-grid').innerHTML = "";
+            shownSet.clear();
         }
     };
 
-    function processText(rawText) {
-        // 只保留汉字
-        const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
-        wordGrid.innerHTML = "";
-        const currentScanSet = new Set();
-        let i = 0;
+    // 3. 核心：监听系统剪贴板变化
+    // 当用户在图片上“拷贝”文字时，回到页面会自动触发
+    window.addEventListener('focus', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) processText(text);
+        } catch (err) {
+            console.log("等待粘贴...");
+        }
+    });
 
+    // 兼容手动：也可以点一下空白处触发
+    document.body.onclick = async () => {
+        const text = await navigator.clipboard.readText().catch(() => "");
+        if (text) processText(text);
+    };
+
+    function processText(rawText) {
+        const text = rawText.replace(/[^\u4e00-\u9fa5]/g, '');
+        const grid = document.getElementById('word-grid');
+        
+        let i = 0;
         while (i < text.length) {
             let pair = text[i] + (text[i+1] || "");
             let found = "";
 
             if (dictionary[pair]) {
-                found = pair;
-                i += 2;
+                found = pair; i += 2;
             } else if (dictionary[text[i]]) {
-                found = text[i];
-                i += 1;
+                found = text[i]; i += 1;
             } else {
-                i += 1;
-                continue;
+                i += 1; continue;
             }
 
-            if (found && !currentScanSet.has(found)) {
-                currentScanSet.add(found);
+            if (found && !shownSet.has(found)) {
+                shownSet.add(found);
                 const btn = document.createElement('div');
                 btn.className = 'word-btn';
                 btn.innerText = found;
-                btn.onclick = () => showDetail(found);
-                wordGrid.appendChild(btn);
+                btn.onclick = (e) => {
+                    e.stopPropagation(); // 防止触发 body.onclick
+                    showDetail(found);
+                };
+                grid.appendChild(btn);
             }
         }
     }
