@@ -9,8 +9,9 @@
         :root {
             --yellow: #FFEF00;
             --pink: #FF6AD5;
-            --blue: #00E5FF;
-            --green: #69FF94;
+            --blue: #007AFF; /* 加深后的苹果标准蓝色 */
+            --blue-dark: #0056B3; /* 按钮阴影颜色 */
+            --green: #34C759;
             --glass: rgba(255, 255, 255, 0.85);
         }
 
@@ -21,6 +22,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* 磨砂玻璃卡片 */
         .glass {
             background: var(--glass);
             backdrop-filter: blur(20px);
@@ -30,64 +32,71 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        header { width: 100%; padding: 20px 0 10px; text-align: center; }
-        h1 { margin: 0; font-size: 1.8rem; color: #333; }
+        header { width: 100%; padding: 25px 0 10px; text-align: center; }
+        h1 { margin: 0; font-size: 1.8rem; color: #333; letter-spacing: 1px; }
 
-        .container { width: 92%; max-width: 500px; padding-bottom: 150px; }
+        .container { width: 92%; max-width: 500px; padding-bottom: 120px; }
 
-        /* Step Card 优化 */
-        .instruction-box { padding: 20px; margin-bottom: 15px; position: relative; overflow: hidden; }
-        .step-header { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.1rem; margin-bottom: 15px; }
+        /* 步骤引导 */
+        .instruction-box { padding: 20px; margin-bottom: 15px; }
+        .step-header { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.1rem; margin-bottom: 12px; }
         
-        /* 动态手势提示 */
         .gesture-guide {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            background: rgba(0,0,0,0.03);
-            padding: 12px;
-            border-radius: 15px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            background: rgba(0,0,0,0.04); padding: 12px; border-radius: 15px;
         }
         .action-item { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.8rem; font-weight: bold; color: #444; }
         .hand-icon { font-size: 1.8rem; margin-bottom: 5px; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-        .label-black { background: #333; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: normal; }
+        .label-black { background: #333; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
 
-        /* 按钮与预览 */
+        /* 拍照按钮 */
         .photo-btn {
-            background: var(--pink); color: white; border: none;
-            padding: 15px 30px; border-radius: 20px; font-size: 1.1rem; font-weight: 900;
+            background: var(--pink); color: white; border: none; padding: 15px;
+            border-radius: 20px; font-size: 1.1rem; font-weight: 900;
             box-shadow: 0 5px 0px #D645AB; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
+
         .preview-box { width: 100%; border: 6px solid white; border-radius: 25px; overflow: hidden; margin: 15px 0; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        #display-img { width: 100%; height: auto; display: block; -webkit-user-select: text; }
+        #display-img { width: 100%; height: auto; display: block; -webkit-user-select: text !important; user-select: text !important; }
 
+        /* 🪄 变色后的深蓝色魔法按钮 */
         .magic-btn {
-            background: var(--blue); color: white; border: none;
-            padding: 22px; width: 100%; border-radius: 24px; font-size: 1.5rem; font-weight: 900;
-            box-shadow: 0 6px 0px #00B4CC; margin: 20px 0; transition: 0.1s;
+            background: var(--blue); 
+            color: white; 
+            border: none; 
+            padding: 22px; 
+            width: 100%; 
+            border-radius: 24px; 
+            font-size: 1.6rem; /* 稍微调大了一点 */
+            font-weight: 900;
+            box-shadow: 0 8px 0px var(--blue-dark); /* 深色立体阴影 */
+            margin: 20px 0; 
+            transition: all 0.1s;
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .magic-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px #00B4CC; }
+        .magic-btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 4px 0px var(--blue-dark); 
+        }
 
-        /* 单词按钮网格 */
-        #word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+        /* 词语展示网格 */
+        #word-grid { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-top: 10px; }
         .word-item {
-            background: white; color: #333; font-size: 2.1rem; padding: 15px 24px;
-            border-radius: 22px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            background: white; color: #333; font-size: 2.1rem; padding: 14px 22px;
+            border-radius: 20px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06);
             animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s;
         }
+        .word-item.read { background: #eee !important; color: #bbb !important; transform: scale(0.9); }
 
-        /* 浮动卡片 */
+        /* 解释卡片 */
         #detail-view {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
-            width: 80%; max-width: 340px; padding: 45px 25px 35px;
-            background: rgba(255, 255, 255, 0.95);
+            width: 80%; max-width: 340px; padding: 40px 25px;
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 2px solid white; border-radius: 40px;
             box-shadow: 0 25px 70px rgba(0,0,0,0.25);
@@ -98,10 +107,10 @@
 
         .zh-text { font-size: 5.5rem; margin: 0; color: #222; font-weight: 900; }
         .py-text { color: #FF00A0; font-size: 1.8rem; font-weight: bold; margin: 5px 0 15px; }
-        .en-text { font-size: 1.4rem; color: #555; background: rgba(0,0,0,0.04); padding: 15px; border-radius: 18px; margin-bottom: 25px; line-height: 1.2; }
+        .en-text { font-size: 1.3rem; color: #555; background: rgba(0,0,0,0.04); padding: 15px; border-radius: 18px; margin-bottom: 25px; line-height: 1.3; }
         
-        .speak-btn { background: var(--green); color: #006400; font-weight: 900; padding: 20px; width: 100%; border-radius: 22px; border: none; font-size: 1.3rem; }
-        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #555; color: white; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+        .speak-btn { background: var(--green); color: white; font-weight: 900; padding: 18px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
+        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #555; color: white; border: none; border-radius: 50%; font-size: 1.5rem; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
         .overlay.active { opacity: 1; pointer-events: auto; }
@@ -156,7 +165,10 @@
 
 <script>
     let dictionary = {};
-    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
+
+    fetch('dictionary.json')
+        .then(r => r.json())
+        .then(data => { dictionary = data; });
 
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
@@ -164,7 +176,6 @@
             document.getElementById('display-img').src = URL.createObjectURL(file);
             document.getElementById('image-area').classList.remove('hidden');
             document.getElementById('word-grid').innerHTML = "";
-            // 自动滚到图片处，提醒学生下一步
             setTimeout(() => {
                 document.getElementById('image-area').scrollIntoView({ behavior: 'smooth' });
             }, 300);
@@ -177,7 +188,7 @@
             if (text && text.trim().length > 0) {
                 processText(text);
             } else {
-                alert("还没拷贝文字哦！\nRemember to COPY the text!");
+                alert("记得先长按图片‘拷贝’文字哦！\nCopy the text first!");
             }
         } catch (err) {
             alert("Please allow Paste to see words!");
@@ -190,35 +201,52 @@
         grid.innerHTML = "";
         
         let i = 0;
-        let count = 0;
+        const maxLen = 7; 
+
         while (i < text.length) {
-            let pair = text[i] + (text[i+1] || "");
             let found = "";
-
-            if (dictionary[pair]) { found = pair; i += 2; } 
-            else if (dictionary[text[i]]) { found = text[i]; i += 1; } 
-            else { i += 1; continue; }
-
+            for (let len = maxLen; len >= 1; len--) {
+                let chunk = text.substr(i, len);
+                if (dictionary[chunk]) {
+                    found = chunk;
+                    i += len;
+                    break;
+                }
+            }
             if (found) {
-                const btn = document.createElement('div');
-                btn.className = 'word-item';
-                btn.innerText = found;
-                btn.onclick = () => showDetail(found);
-                grid.appendChild(btn);
-                count++;
+                createButton(found, true, grid);
+            } else {
+                createButton(text[i], false, grid);
+                i++;
             }
         }
-        if(count > 0) {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        setTimeout(() => {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    function createButton(word, isInDict, container) {
+        const btn = document.createElement('div');
+        btn.className = 'word-item';
+        btn.innerText = word;
+        if (isInDict) {
+            btn.onclick = (e) => {
+                showDetail(word);
+                e.target.classList.add('read');
+            };
+        } else {
+            btn.style.opacity = "0.4";
+            btn.onclick = () => speak(word);
         }
+        container.appendChild(btn);
     }
 
     function showDetail(word) {
         const entry = dictionary[word];
         if(!entry) return;
         document.getElementById('card-zh').innerText = word;
-        document.getElementById('card-py').innerText = entry.pinyin;
-        document.getElementById('card-en').innerText = entry.english;
+        document.getElementById('card-py').innerText = entry.pinyin || "";
+        document.getElementById('card-en').innerText = entry.english || entry.definitions || "";
         document.getElementById('detail-view').classList.add('active');
         document.getElementById('mask').classList.add('active');
         speak(word);
