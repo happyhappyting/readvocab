@@ -4,123 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Smart Reading Pen | 点读笔</title>
-    
+    <title>精准点读笔 | Reading Pen</title>
     <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
-    
     <style>
-        :root { --primary: #007aff; --success: #28a745; --bg: #f2f2f7; --card: #ffffff; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1c1c1e; padding-bottom: 120px; }
+        :root { --primary: #007aff; --bg: #f2f2f7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 100px; }
         .hidden { display: none !important; }
         
-        header { text-align: center; margin-bottom: 25px; }
-        .en-sub { display: block; font-size: 0.9rem; color: #8e8e93; font-weight: normal; margin-top: 4px; }
-
-        /* Main Scan Button */
-        .btn-scan { 
-            background: var(--primary); color: white; border: none; padding: 22px; 
-            border-radius: 18px; font-size: 1.3rem; font-weight: 600; width: 100%; 
-            box-shadow: 0 4px 15px rgba(0,122,255,0.3); cursor: pointer; display: block; text-align: center;
-            text-decoration: none;
-        }
-        .btn-scan:active { transform: scale(0.98); opacity: 0.9; }
-
-        /* Results Grid */
-        .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 25px 0; }
-        .word-btn { 
-            font-size: 2.2rem; padding: 15px 22px; background: white; border-radius: 15px; 
-            border: 2px solid #d1d1d6; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer;
-        }
-        .word-btn:active { background: #e5f1ff; border-color: var(--primary); }
-
-        /* History Section */
-        .history-container { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 20px; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .history-item { 
-            background: white; margin-bottom: 10px; padding: 15px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-left: 6px solid var(--primary); animation: slideIn 0.3s ease-out;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* Detail Modal (Bottom Sheet) */
-        #detail-view { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: white; 
-            padding: 35px 25px; border-radius: 25px 25px 0 0; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.15); text-align: center; z-index: 100;
-        }
-        .pinyin { color: var(--primary); font-size: 1.8rem; font-weight: bold; margin: 10px 0; }
-        .english { color: #636366; font-size: 1.2rem; margin-bottom: 25px; line-height: 1.4; }
-
-        /* Loading Spinner */
-        #loading { text-align: center; padding: 30px; }
-        .spinner { width: 35px; height: 35px; border: 4px solid #e5e5ea; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* UI Components */
+        .btn-scan { background: var(--primary); color: white; border: none; padding: 20px; border-radius: 16px; font-size: 1.2rem; font-weight: 600; width: 100%; cursor: pointer; text-align: center; }
+        .word-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 25px 0; }
         
-        .clear-btn { background: none; border: 1px solid #ff3b30; color: #ff3b30; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+        /* 词组样式：如果是词组，给一个明显的视觉包裹感 */
+        .word-btn { 
+            font-size: 2.2rem; padding: 12px 20px; background: white; border-radius: 12px;
+            border: 2px solid #d1d1d6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer;
+        }
+        .is-pair { border-color: var(--primary); background: #f0f7ff; }
+
+        #view-detail { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 30px; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); text-align: center; z-index: 100; }
+        .history-item { background: white; margin-bottom: 8px; padding: 12px; border-radius: 10px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        
+        #loading { text-align: center; padding: 40px; }
+        .spinner { border: 4px solid #ddd; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
+    <header style="text-align:center; margin-bottom:20px;">
         <h1 style="margin:0;">点读笔</h1>
-        <span class="en-sub">Reading Pen (Chinese to English)</span>
+        <p style="color:#666; font-size:0.9rem;">字典校验模式 (Only Real Words)</p>
     </header>
 
-    <main>
-        <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            <label for="camera-input" class="btn-scan">
-                📷 Take Photo / 拍照识别
-            </label>
-            <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
-            <p style="text-align:center; font-size:0.8rem; color:#8e8e93; margin-top:10px;">
-                Tip: Use landscape mode for better accuracy
-            </p>
-        </div>
+    <label for="camera-input" class="btn-scan" style="display:block;">📷 拍照识别 / Scan Text</label>
+    <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
 
-        <canvas id="proc-canvas" class="hidden"></canvas>
+    <div id="loading" class="hidden">
+        <div class="spinner"></div>
+        <p>正在精准识别...<br>Filtering noise...</p>
+    </div>
 
-        <div id="loading" class="hidden">
-            <div class="spinner"></div>
-            <p>Filtering Noise & Reading...<br>正在过滤干扰并识别...</p>
-        </div>
+    <div id="word-grid" class="word-grid"></div>
 
-        <div id="word-grid" class="word-grid"></div>
+    <div style="margin-top:30px;">
+        <h3>学习记录 History</h3>
+        <div id="history-list"></div>
+    </div>
 
-        <div class="history-container">
-            <div class="history-header">
-                <h3 style="margin:0;">学习记录 <small style="font-weight:normal; color:#8e8e93;">History</small></h3>
-                <button class="clear-btn" onclick="clearHistory()">Clear / 清空</button>
-            </div>
-            <div id="history-list"></div>
-        </div>
-    </main>
-</div>
+    <div id="view-detail" class="hidden">
+        <button onclick="closeDetail()" style="float:right; border:none; background:none; font-size:1.5rem; color:#ccc;">✕</button>
+        <h2 id="card-zh" style="font-size:4rem; margin:10px 0;">--</h2>
+        <p id="card-py" style="color:var(--primary); font-size:1.5rem; font-weight:bold;">--</p>
+        <p id="card-en" style="color:#666; margin-bottom:20px;">--</p>
+        <button class="btn-scan" onclick="speak()">🔊 发音 / Listen</button>
+    </div>
 
-<div id="view-detail" class="hidden">
-    <button onclick="closeDetail()" style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:2rem; color:#c7c7cc;">✕</button>
-    <h2 id="zh-text" style="font-size:4.5rem; margin:0;">--</h2>
-    <p id="py-text" class="pinyin">--</p>
-    <p id="en-text" class="english">--</p>
-    <button class="btn-scan" onclick="speakNow()" style="background:var(--success); box-shadow:none;">🔊 Listen / 听发音</button>
-</div>
+    <canvas id="proc-canvas" class="hidden"></canvas>
 
 <script>
     let dictionary = {};
-    const historyData = new Set();
+    const historySet = new Set();
     const cameraInput = document.getElementById('camera-input');
     const canvas = document.getElementById('proc-canvas');
     const ctx = canvas.getContext('2d');
 
-    // 1. Load Data
-    fetch('dictionary.json')
-        .then(r => r.json())
-        .then(data => { dictionary = data; })
-        .catch(() => alert("Error: dictionary.json not found in root folder!"));
+    // 1. 加载字典
+    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
-    // 2. Camera & OCR Logic
     cameraInput.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -131,100 +82,92 @@
         const img = new Image();
         img.src = URL.createObjectURL(file);
         img.onload = async () => {
-            // Image Enhancement
+            // 2. 增强图像：提高对比度，让字更黑，背景更白
             canvas.width = img.width;
             canvas.height = img.height;
-            // Strict grayscale/contrast to help OCR ignore shadows and backgrounds
-            ctx.filter = 'grayscale(1) contrast(1.8) brightness(1.1)';
+            ctx.filter = 'grayscale(1) contrast(2) brightness(1)'; // 增强对比度
             ctx.drawImage(img, 0, 0);
 
             const worker = await Tesseract.createWorker('chi_sim');
+            // 设置识别参数，只允许识别常见汉字，减少乱码
+            await worker.setParameters({
+                tessedit_char_whitelist: '的一是在不了有和人这中大来上个国我到说们为子和主时里后自以会那对着而起级过家学生作业苹果', // 可以在这里增加常用字
+            });
+            
             const { data: { text } } = await worker.recognize(canvas);
             await worker.terminate();
 
-            // 🔥 FORCE CHINESE ONLY: Removes all non-Chinese characters
-            const chineseOnlyText = text.replace(/[^\u4e00-\u9fa5]/g, '');
+            // 3. 过滤非中文字符
+            const rawText = text.replace(/[^\u4e00-\u9fa5]/g, '');
             
-            if (chineseOnlyText.length === 0) {
-                document.getElementById('word-grid').innerHTML = "<p style='color:#8e8e93;'>No Chinese found. Try again!<br>未识别到中文，请重新拍照。</p>";
-            } else {
-                processAndPair(chineseOnlyText);
-            }
-            
+            // 4. 字典校验匹配逻辑
+            processWithDict(rawText);
             document.getElementById('loading').classList.add('hidden');
         };
     };
 
-    // 3. Smart Word Pairing
-    function processAndPair(text) {
-        let i = 0;
+    function processWithDict(text) {
         const grid = document.getElementById('word-grid');
+        let i = 0;
+
         while (i < text.length) {
-            let pair = text[i] + (text[i+1] || "");
-            
-            // If the dictionary recognizes a 2-character word, keep them together
-            if (dictionary[pair]) {
-                addWordToGrid(pair);
+            let char1 = text[i];
+            let char2 = text[i+1] || "";
+            let pair = char1 + char2;
+
+            // 逻辑：
+            // A. 如果两个字组成的词在字典里（如：作业） -> 作为一个大按钮
+            if (char2 && dictionary[pair]) {
+                addBtn(pair, true);
                 i += 2;
-            } else {
-                addWordToGrid(text[i]);
+            } 
+            // B. 如果单个字在字典里（排除掉 OCR 乱编的怪字） -> 作为一个按钮
+            else if (dictionary[char1]) {
+                addBtn(char1, false);
+                i += 1;
+            } 
+            // C. 如果这个字在字典里查不到，说明大概率是识别错了 -> 忽略它
+            else {
+                console.log("忽略疑似错误识别:", char1);
                 i += 1;
             }
         }
     }
 
-    function addWordToGrid(word) {
+    function addBtn(word, isPair) {
         const btn = document.createElement('div');
-        btn.className = 'word-btn';
+        btn.className = 'word-btn' + (isPair ? ' is-pair' : '');
         btn.innerText = word;
         btn.onclick = () => showDetail(word);
         document.getElementById('word-grid').appendChild(btn);
     }
 
-    // 4. Detail & History Logging
     function showDetail(word) {
-        const entry = dictionary[word] || { pinyin: "N/A", english: "No definition available" };
-        document.getElementById('zh-text').innerText = word;
-        document.getElementById('py-text').innerText = entry.pinyin;
-        document.getElementById('en-text').innerText = entry.english;
-        document.getElementById('detail-view').classList.remove('hidden');
+        const entry = dictionary[word];
+        document.getElementById('card-zh').innerText = word;
+        document.getElementById('card-py').innerText = entry.pinyin;
+        document.getElementById('card-en').innerText = entry.english;
+        document.getElementById('view-detail').classList.remove('hidden');
         
-        speakNow(word);
-        updateHistory(word, entry);
+        speak(word);
+        if(!historySet.has(word)) {
+            historySet.add(word);
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `<span><b>${word}</b> ${entry.pinyin}</span><button onclick="speak('${word}')" style="border:none;background:none;font-size:1.2rem;">🔊</button>`;
+            document.getElementById('history-list').prepend(item);
+        }
     }
 
-    function updateHistory(word, entry) {
-        if (historyData.has(word)) return;
-        historyData.add(word);
+    function closeDetail() { document.getElementById('view-detail').classList.add('hidden'); }
 
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        item.innerHTML = `
-            <div>
-                <b style="font-size:1.4rem;">${word}</b> 
-                <span style="color:var(--primary); margin-left:10px; font-weight:bold;">${entry.pinyin}</span>
-                <div style="font-size:0.9rem; color:#636366; margin-top:4px;">${entry.english}</div>
-            </div>
-            <button onclick="speakNow('${word}')" style="border:none; background:#f2f2f7; padding:12px; border-radius:50%; font-size:1.2rem;">🔊</button>
-        `;
-        document.getElementById('history-list').prepend(item);
-    }
-
-    function clearHistory() {
-        historyData.clear();
-        document.getElementById('history-list').innerHTML = "";
-    }
-
-    function closeDetail() { document.getElementById('detail-view').classList.add('hidden'); }
-
-    function speakNow(word) {
-        const target = word || document.getElementById('zh-text').innerText;
-        const msg = new SpeechSynthesisUtterance(target);
+    function speak(t) {
+        const text = t || document.getElementById('card-zh').innerText;
+        const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'zh-CN';
-        msg.rate = 0.8; // Slower for easier learning
+        msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
 </script>
-
 </body>
 </html>
