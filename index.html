@@ -2,314 +2,142 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Smart Pen | 智能阅读助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Smart Pen Pro</title>
     <style>
-        :root {
-            --bg-yellow: #FFF9C4; 
-            --card-white: #FFFFFF;
-            --action-pink: #FF66A1; 
-            --pink-shadow: #D1457A;
-            --vivid-blue: #007AFF;
-            --blue-shadow: #0056B3;
-            --success-green: #34C759;
-            --text-main: #1C1C1E;
-            --accent-gray: #8E8E93;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: -apple-system, system-ui, sans-serif;
-            background: var(--bg-yellow);
-            margin: 0; padding: 0; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--text-main);
-        }
-
-        header { width: 100%; padding: 30px 0 10px; text-align: center; }
-        h1 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
-
-        .container { width: 92%; max-width: 500px; padding-bottom: 150px; }
-
-        .glass-card {
-            background: var(--card-white);
-            border-radius: 24px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-            padding: 22px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .step-header { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; }
-
-        .photo-btn {
-            background: var(--action-pink); color: white; border: none;
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
-            padding: 18px; border-radius: 20px; font-size: 1.1rem; font-weight: 700;
-            box-shadow: 0 6px 0px var(--pink-shadow);
-            cursor: pointer; transition: all 0.1s;
-        }
-        .photo-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--pink-shadow); }
-
-        .preview-box { width: 100%; border: 6px solid white; border-radius: 24px; overflow: hidden; margin: 20px 0; box-shadow: 0 12px 30px rgba(0,0,0,0.1); background: #eee; }
+        body { font-family: system-ui; background: #FFF9C4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        
+        /* 💡 关键：让图片处于最简单的状态 */
         #display-img { 
             width: 100%; height: auto; display: block; 
-            -webkit-user-select: text !important; 
+            margin: 20px 0; border-radius: 12px;
+            /* 强制开启系统底层权限 */
+            -webkit-user-select: text !important;
             user-select: text !important;
             -webkit-touch-callout: default !important;
         }
 
-        .gesture-guide {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            background: #F2F2F7; padding: 15px; border-radius: 18px;
-        }
-        .action-item { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 700; color: #444; }
-        .hand-icon { font-size: 1.8rem; margin-bottom: 6px; }
-        .label-black { background: #333; color: white; padding: 2px 6px; border-radius: 5px; font-size: 0.7rem; font-weight: normal; }
+        .card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-pink { background: #FF66A1; color: white; border: none; width: 100%; padding: 18px; border-radius: 15px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 5px 0 #D1457A; }
+        .btn-blue { background: #007AFF; color: white; border: none; width: 100%; padding: 20px; border-radius: 15px; font-size: 1.4rem; font-weight: bold; box-shadow: 0 5px 0 #0056B3; margin: 15px 0; }
+        .btn-pink:active, .btn-blue:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
 
-        .magic-btn {
-            background: var(--vivid-blue); color: white; border: none;
-            width: 100%; padding: 22px; border-radius: 22px;
-            font-size: 1.4rem; font-weight: 800;
-            box-shadow: 0 8px 0px var(--blue-shadow);
-            margin: 20px 0 10px; cursor: pointer; transition: all 0.1s;
-        }
-        .magic-btn:active { transform: translateY(4px); box-shadow: 0 4px 0px var(--blue-shadow); }
+        .paragraph-wrapper { position: relative; margin-bottom: 25px; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 15px; }
+        .paragraph-num { background: #333; color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; }
+        .word-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .word-item { background: white; padding: 12px 18px; border-radius: 12px; font-size: 1.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .word-item.read { background: #E5E5EA; color: #AEAEB2; }
 
-        .reset-link { color: var(--accent-gray); font-size: 0.9rem; text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-bottom: 20px; }
-
-        /* --- 段落与编号样式 --- */
-        #word-grid { display: block; width: 100%; }
-        
-        .paragraph-wrapper {
-            position: relative;
-            margin-bottom: 30px;
-            padding: 20px 15px 15px;
-            background: rgba(255,255,255,0.4);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.6);
-        }
-
-        /* 编号徽章 */
-        .paragraph-num {
-            position: absolute; top: -12px; left: 15px;
-            background: var(--text-main); color: white;
-            padding: 2px 12px; border-radius: 10px;
-            font-size: 0.8rem; font-weight: 800;
-        }
-
-        .paragraph-content { display: flex; flex-wrap: wrap; gap: 12px; }
-
-        .word-item {
-            background: white; color: var(--text-main); font-size: 1.8rem; font-weight: 700; padding: 12px 18px;
-            border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-        .word-item.read { background: #E5E5EA !important; color: #AEAEB2 !important; transform: scale(0.95); box-shadow: none; }
-
-        /* 详情弹窗 */
-        #detail-view {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
-            width: 85%; max-width: 350px; padding: 40px 25px;
-            background: #FFFFFF; border-radius: 40px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
-            z-index: 2000; text-align: center;
-            opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        #detail-view.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
-
-        .zh-text { font-size: 5rem; margin: 0; color: #000; font-weight: 900; }
-        .py-text { color: var(--action-pink); font-size: 1.8rem; font-weight: 700; margin: 10px 0 20px; }
-        .en-text { font-size: 1.1rem; color: #444; background: #F2F2F7; padding: 18px; border-radius: 18px; margin-bottom: 25px; line-height: 1.4; }
-        
-        .speak-btn { background: var(--success-green); color: white; font-weight: 800; padding: 20px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
-        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #F2F2F7; color: #8E8E93; border: none; border-radius: 50%; font-size: 1.2rem; font-weight: bold; }
-
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
-        .overlay.active { opacity: 1; pointer-events: auto; }
+        #detail-view { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; background: white; border-radius: 30px; padding: 30px; z-index: 2000; text-align: center; display: none; box-shadow: 0 0 100px rgba(0,0,0,0.3); }
+        #detail-view.active { display: block; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1500; display: none; }
+        .overlay.active { display: block; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Smart Pen</h1>
-    </header>
-
-    <div class="container">
-        <div class="glass-card">
-            <div class="step-header">📸 01. 导入内容</div>
-            <label for="file-input" class="photo-btn">打开相机 / 选取图片</label>
-            <input type="file" id="file-input" accept="image/*" class="hidden">
-        </div>
-
-        <div id="image-area" class="preview-box hidden">
-            <img id="display-img" src="">
-        </div>
-
-        <div class="glass-card">
-            <div class="step-header">👆 02. 选取词语</div>
-            <div class="gesture-guide">
-                <div class="action-item">
-                    <div class="hand-icon">👆</div>
-                    长按识别文字
-                </div>
-                <div class="action-item">
-                    <div class="hand-icon">🔘</div>
-                    点 <span class="label-black">Show Text</span><br>再点 <span class="label-black">Copy</span>
-                </div>
-            </div>
-        </div>
-
-        <button class="magic-btn" onclick="readClipboard()">分析选中的内容 Analyze</button>
-        <span class="reset-link" onclick="resetAll()">清空当前内容 Clear All</span>
-
-        <div id="word-grid"></div>
+<div class="container">
+    <div class="card">
+        <b style="display:block; margin-bottom:10px;">01. 拍照</b>
+        <label for="file-input" class="btn-pink">打开相机 Take Photo</label>
+        <input type="file" id="file-input" accept="image/*" class="hidden">
     </div>
 
-    <div id="mask" class="overlay" onclick="closeDetail()"></div>
+    <img id="display-img" class="hidden">
 
-    <div id="detail-view">
-        <button onclick="closeDetail()" class="close-btn">✕</button>
-        <h2 class="zh-text" id="card-zh">--</h2>
-        <p class="py-text" id="card-py">--</p>
-        <div class="en-text" id="card-en">--</div>
-        <button class="speak-btn" onclick="speak()">🔊 播放读音 (Listen)</button>
+    <div class="card">
+        <b style="display:block; margin-bottom:10px;">02. 选词指引</b>
+        <p style="font-size:0.9rem; margin:0;">1. 长按上方图片中文字<br>2. 点击 <b>Show Text</b> -> <b>Copy</b></p>
     </div>
+
+    <button class="btn-blue" onclick="readClipboard()">分析 Analyze</button>
+    <div id="result-area"></div>
+</div>
+
+<div id="mask" class="overlay" onclick="closeDetail()"></div>
+<div id="detail-view">
+    <h2 id="card-zh" style="font-size:4rem; margin:0;"></h2>
+    <p id="card-py" style="color:#FF66A1; font-size:1.5rem;"></p>
+    <div id="card-en" style="background:#f2f2f7; padding:15px; border-radius:15px; margin:15px 0;"></div>
+    <button onclick="speak()" style="background:#34C759; color:white; width:100%; padding:15px; border:none; border-radius:12px; font-weight:bold;">🔊 听读音</button>
+</div>
 
 <script>
     let dictionary = {};
     fetch('dictionary.json').then(r => r.json()).then(data => {
         dictionary = data;
-        // 加载历史记录
         const saved = localStorage.getItem('last_scan');
-        if(saved) processText(saved, true);
+        if(saved) processText(saved);
     });
 
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            document.getElementById('display-img').src = URL.createObjectURL(file);
-            document.getElementById('image-area').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('image-area').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
+            const img = document.getElementById('display-img');
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            img.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
     async function readClipboard() {
         try {
             const text = await navigator.clipboard.readText();
-            if (text && text.trim().length > 0) {
+            if (text.trim()) {
                 processText(text);
                 localStorage.setItem('last_scan', text);
-            } else {
-                alert("请先在图片中长按并‘拷贝’文字内容。");
             }
-        } catch (err) {
-            alert("请授予粘贴权限以分析内容。");
-        }
+        } catch (err) { alert("请允许粘贴权限"); }
     }
 
-    function processText(rawText, isHistory = false) {
-        const grid = document.getElementById('word-grid');
+    function processText(rawText) {
+        const grid = document.getElementById('result-area');
         grid.innerHTML = "";
-        
         const paragraphs = rawText.split(/\n+/);
-        let pCount = 1;
-
-        paragraphs.forEach(pText => {
-            const cleanText = pText.replace(/[^\u4e00-\u9fa5]/g, '');
-            if (cleanText.length === 0) return;
-
-            // 创建带编号的包装器
+        paragraphs.forEach((pText, index) => {
+            const clean = pText.replace(/[^\u4e00-\u9fa5]/g, '');
+            if (!clean) return;
             const wrapper = document.createElement('div');
             wrapper.className = 'paragraph-wrapper';
-            
-            const numLabel = document.createElement('div');
-            numLabel.className = 'paragraph-num';
-            numLabel.innerText = `P${pCount++}`;
-            wrapper.appendChild(numLabel);
-
+            wrapper.innerHTML = `<span class="paragraph-num">P${index+1}</span>`;
             const content = document.createElement('div');
-            content.className = 'paragraph-content';
+            content.className = 'word-grid';
             
             let i = 0;
-            const maxLen = 7; 
-
-            while (i < cleanText.length) {
+            while (i < clean.length) {
                 let found = "";
-                for (let len = maxLen; len >= 1; len--) {
-                    let chunk = cleanText.substr(i, len);
-                    if (dictionary[chunk]) {
-                        found = chunk;
-                        i += len;
-                        break;
-                    }
+                for (let len = 7; len >= 1; len--) {
+                    let chunk = clean.substr(i, len);
+                    if (dictionary[chunk]) { found = chunk; i += len; break; }
                 }
-                if (found) {
-                    addWordItem(found, true, content);
-                } else {
-                    addWordItem(cleanText[i], false, content);
-                    i++;
-                }
+                const btn = document.createElement('div');
+                btn.className = 'word-item';
+                btn.innerText = found || clean[i];
+                if (found) btn.onclick = (e) => { showDetail(found); e.target.classList.add('read'); };
+                else { btn.style.opacity = "0.4"; btn.onclick = () => speak(btn.innerText); i++; }
+                content.appendChild(btn);
             }
             wrapper.appendChild(content);
             grid.appendChild(wrapper);
         });
-
-        if(!isHistory) {
-            setTimeout(() => { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
-    }
-
-    function addWordItem(word, isInDict, container) {
-        const btn = document.createElement('div');
-        btn.className = 'word-item';
-        btn.innerText = word;
-        if (isInDict) {
-            btn.onclick = (e) => {
-                showDetail(word);
-                e.target.classList.add('read');
-            };
-        } else {
-            btn.style.opacity = "0.4";
-            btn.style.border = "1px dashed #999";
-            btn.onclick = () => speak(word);
-        }
-        container.appendChild(btn);
-    }
-
-    function resetAll() {
-        if(confirm("确定要清空当前所有识别的词语吗？")) {
-            document.getElementById('word-grid').innerHTML = "";
-            localStorage.removeItem('last_scan');
-        }
     }
 
     function showDetail(word) {
         const entry = dictionary[word];
-        if(!entry) return;
         document.getElementById('card-zh').innerText = word;
-        document.getElementById('card-py').innerText = entry.pinyin || entry.pronunciation || "";
+        document.getElementById('card-py').innerText = entry.pinyin || "";
         document.getElementById('card-en').innerText = entry.english || entry.definitions || "";
         document.getElementById('detail-view').classList.add('active');
         document.getElementById('mask').classList.add('active');
         speak(word);
     }
 
-    function closeDetail() { 
-        document.getElementById('detail-view').classList.remove('active'); 
-        document.getElementById('mask').classList.remove('active');
-    }
-
+    function closeDetail() { document.getElementById('detail-view').classList.remove('active'); document.getElementById('mask').classList.remove('active'); }
     function speak(t) {
-        const text = t || document.getElementById('card-zh').innerText;
-        const msg = new SpeechSynthesisUtterance(text);
+        const msg = new SpeechSynthesisUtterance(t || document.getElementById('card-zh').innerText);
         msg.lang = 'zh-CN';
-        msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
 </script>
