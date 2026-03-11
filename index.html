@@ -4,181 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Magic Pen | 华文点读宝</title>
+    <title>Magic Pen | 智能阅读助手</title>
     <style>
         :root {
-            --yellow: #FFEF00;
-            --pink: #FF6AD5;
-            --blue: #007AFF; /* 加深后的苹果标准蓝色 */
-            --blue-dark: #0056B3; /* 按钮阴影颜色 */
-            --green: #34C759;
-            --glass: rgba(255, 255, 255, 0.85);
+            --accent-yellow: #FFF9C4; /* 柠檬奶油黄，更高级 */
+            --bg-gradient: linear-gradient(180deg, #FFF9C4 0%, #FFFDE7 100%);
+            --vivid-blue: #007AFF;    /* 苹果蓝，专业感 */
+            --soft-pink: #FF85A1;     /* 珊瑚粉，轻熟感 */
+            --deep-gray: #3A3A3C;     /* 主文字色 */
+            --secondary-gray: #8E8E93;
+            --glass-white: rgba(255, 255, 255, 0.7);
         }
 
         body {
-            font-family: 'PingFang SC', system-ui, sans-serif;
-            background: linear-gradient(160deg, var(--yellow), #FFD600);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
             margin: 0; padding: 0; min-height: 100vh;
+            color: var(--deep-gray);
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 磨砂玻璃卡片 */
-        .glass {
-            background: var(--glass);
+        header { width: 100%; padding: 40px 0 20px; text-align: center; }
+        h1 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+
+        .container { width: 90%; max-width: 500px; padding-bottom: 120px; }
+
+        /* 卡片基础样式：现代感、轻薄 */
+        .card {
+            background: var(--glass-white);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        header { width: 100%; padding: 25px 0 10px; text-align: center; }
-        h1 { margin: 0; font-size: 1.8rem; color: #333; letter-spacing: 1px; }
+        .section-title { font-size: 0.9rem; font-weight: 700; color: var(--secondary-gray); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .container { width: 92%; max-width: 500px; padding-bottom: 120px; }
+        /* 拍照按钮：从“拍照”到“导入”的语感转换 */
+        .action-btn-main {
+            background: var(--soft-pink);
+            color: white; border: none;
+            width: 100%; padding: 16px; border-radius: 14px;
+            font-size: 1rem; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(255, 133, 161, 0.3);
+        }
+        .action-btn-main:active { transform: scale(0.98); opacity: 0.9; }
 
-        /* 步骤引导 */
-        .instruction-box { padding: 20px; margin-bottom: 15px; }
-        .step-header { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 1.1rem; margin-bottom: 12px; }
+        /* 图片区预览 */
+        .preview-box { 
+            width: 100%; border-radius: 18px; overflow: hidden; 
+            margin: 10px 0 25px; border: 4px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        #display-img { width: 100%; display: block; -webkit-user-select: text !important; }
+
+        /* 指示步骤：更清晰、更职业 */
+        .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 12px; }
+        .guide-item { font-size: 0.8rem; color: #555; line-height: 1.5; }
+        .guide-item b { color: #000; display: block; margin-bottom: 4px; }
+        .kbd { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 1px 5px; font-size: 0.7rem; box-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+
+        /* 识别按钮 */
+        .analyze-btn {
+            background: var(--vivid-blue);
+            color: white; border: none;
+            width: 100%; padding: 18px; border-radius: 16px;
+            font-size: 1.1rem; font-weight: 600;
+            margin: 20px 0; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
+        }
+        .analyze-btn:active { transform: scale(0.97); }
+
+        /* 单词列表：更具设计感的词块 */
+        #word-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .word-chip {
+            background: white; padding: 10px 18px; border-radius: 12px;
+            font-size: 1.4rem; font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid transparent; transition: all 0.2s;
+        }
+        .word-chip:active { border-color: var(--vivid-blue); color: var(--vivid-blue); }
+        .word-chip.viewed { background: rgba(255,255,255,0.5); color: #AEAEB2; }
+
+        /* 单词详情卡片：悬浮、精致 */
+        #detail-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.1); 
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        #detail-overlay.active { opacity: 1; pointer-events: auto; }
         
-        .gesture-guide {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            background: rgba(0,0,0,0.04); padding: 12px; border-radius: 15px;
+        .detail-card {
+            width: 85%; max-width: 340px; background: white; border-radius: 24px;
+            padding: 30px; text-align: center; position: relative;
+            transform: translateY(20px); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         }
-        .action-item { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.8rem; font-weight: bold; color: #444; }
-        .hand-icon { font-size: 1.8rem; margin-bottom: 5px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        #detail-overlay.active .detail-card { transform: translateY(0); }
 
-        .label-black { background: #333; color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
-
-        /* 拍照按钮 */
-        .photo-btn {
-            background: var(--pink); color: white; border: none; padding: 15px;
-            border-radius: 20px; font-size: 1.1rem; font-weight: 900;
-            box-shadow: 0 5px 0px #D645AB; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-
-        .preview-box { width: 100%; border: 6px solid white; border-radius: 25px; overflow: hidden; margin: 15px 0; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        #display-img { width: 100%; height: auto; display: block; -webkit-user-select: text !important; user-select: text !important; }
-
-        /* 🪄 变色后的深蓝色魔法按钮 */
-        .magic-btn {
-            background: var(--blue); 
-            color: white; 
-            border: none; 
-            padding: 22px; 
-            width: 100%; 
-            border-radius: 24px; 
-            font-size: 1.6rem; /* 稍微调大了一点 */
-            font-weight: 900;
-            box-shadow: 0 8px 0px var(--blue-dark); /* 深色立体阴影 */
-            margin: 20px 0; 
-            transition: all 0.1s;
-            cursor: pointer;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .magic-btn:active { 
-            transform: translateY(4px); 
-            box-shadow: 0 4px 0px var(--blue-dark); 
-        }
-
-        /* 词语展示网格 */
-        #word-grid { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; margin-top: 10px; }
-        .word-item {
-            background: white; color: #333; font-size: 2.1rem; padding: 14px 22px;
-            border-radius: 20px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transition: all 0.2s;
-        }
-        .word-item.read { background: #eee !important; color: #bbb !important; transform: scale(0.9); }
-
-        /* 解释卡片 */
-        #detail-view {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
-            width: 80%; max-width: 340px; padding: 40px 25px;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border: 2px solid white; border-radius: 40px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
-            z-index: 2000; text-align: center;
-            opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        #detail-view.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
-
-        .zh-text { font-size: 5.5rem; margin: 0; color: #222; font-weight: 900; }
-        .py-text { color: #FF00A0; font-size: 1.8rem; font-weight: bold; margin: 5px 0 15px; }
-        .en-text { font-size: 1.3rem; color: #555; background: rgba(0,0,0,0.04); padding: 15px; border-radius: 18px; margin-bottom: 25px; line-height: 1.3; }
+        .detail-zh { font-size: 4rem; margin: 0; font-weight: 700; color: #1c1c1e; }
+        .detail-py { font-size: 1.4rem; color: var(--soft-pink); margin: 10px 0 20px; font-weight: 500; }
+        .detail-en { font-size: 1.1rem; color: #636366; background: #F2F2F7; padding: 15px; border-radius: 14px; margin-bottom: 25px; }
         
-        .speak-btn { background: var(--green); color: white; font-weight: 900; padding: 18px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
-        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #555; color: white; border: none; border-radius: 50%; font-size: 1.5rem; }
+        .btn-audio {
+            background: #34C759; color: white; border: none; width: 100%;
+            padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+        }
+        .close-icon { position: absolute; top: 15px; right: 15px; font-size: 1.4rem; color: #D1D1D6; cursor: pointer; border: none; background: none; }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
-        .overlay.active { opacity: 1; pointer-events: auto; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>✨ 华文点读宝</h1>
+        <h1>Smart Reading</h1>
     </header>
 
     <div class="container">
-        <div class="glass instruction-box">
-            <div class="step-header">📸 Step 1: 拍张照片</div>
-            <label for="file-input" class="photo-btn">打开相机 Take Photo</label>
+        <div class="card">
+            <div class="section-title">01. 导入内容</div>
+            <label for="file-input" class="action-btn-main">
+                <span>📸</span> 拍照或选择图片
+            </label>
             <input type="file" id="file-input" accept="image/*" class="hidden">
         </div>
 
-        <div id="image-area" class="preview-box hidden">
+        <div id="preview-area" class="preview-box hidden">
             <img id="display-img" src="">
         </div>
 
-        <div class="glass instruction-box">
-            <div class="step-header">👆 Step 2: 选出文字</div>
-            <div class="gesture-guide">
-                <div class="action-item">
-                    <div class="hand-icon">👆</div>
-                    手指按住字不要动<br><small>(Press & Hold)</small>
+        <div class="card">
+            <div class="section-title">02. 选词说明</div>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <b>1. 选取文本</b>
+                    长按图片中想要翻译或阅读的字词。
                 </div>
-                <div class="action-item">
-                    <div class="hand-icon">🔘</div>
-                    点 <span class="label-black">Show Text</span><br>再点 <span class="label-black">Copy</span>
+                <div class="guide-item">
+                    <b>2. 拷贝</b>
+                    在菜单中点击 <span class="kbd">Show Text</span> 然后选择 <span class="kbd">Copy</span>。
                 </div>
             </div>
         </div>
 
-        <button class="magic-btn" onclick="readClipboard()">🪄 变出词语！Magic!</button>
+        <button class="analyze-btn" onclick="readClipboard()">分析选中的内容</button>
 
         <div id="word-grid"></div>
     </div>
 
-    <div id="mask" class="overlay" onclick="closeDetail()"></div>
-
-    <div id="detail-view">
-        <button onclick="closeDetail()" class="close-btn">✕</button>
-        <h2 class="zh-text" id="card-zh">--</h2>
-        <p class="py-text" id="card-py">--</p>
-        <div class="en-text" id="card-en">--</div>
-        <button class="speak-btn" onclick="speak()">🔊 听读音 Listen</button>
+    <div id="detail-overlay" onclick="closeDetail()">
+        <div class="detail-card" onclick="event.stopPropagation()">
+            <button class="close-icon" onclick="closeDetail()">✕</button>
+            <h2 class="detail-zh" id="card-zh">--</h2>
+            <p class="detail-py" id="card-py">--</p>
+            <div class="detail-en" id="card-en">--</div>
+            <button class="btn-audio" onclick="speak()">播放读音 Audio</button>
+        </div>
     </div>
 
 <script>
     let dictionary = {};
-
-    fetch('dictionary.json')
-        .then(r => r.json())
-        .then(data => { dictionary = data; });
+    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
 
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
             document.getElementById('display-img').src = URL.createObjectURL(file);
-            document.getElementById('image-area').classList.remove('hidden');
+            document.getElementById('preview-area').classList.remove('hidden');
             document.getElementById('word-grid').innerHTML = "";
-            setTimeout(() => {
-                document.getElementById('image-area').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
+            window.scrollTo({ top: document.getElementById('preview-area').offsetTop - 50, behavior: 'smooth' });
         }
     };
 
@@ -188,10 +188,10 @@
             if (text && text.trim().length > 0) {
                 processText(text);
             } else {
-                alert("记得先长按图片‘拷贝’文字哦！\nCopy the text first!");
+                alert("请先在图片中选取并拷贝(Copy)文字。");
             }
         } catch (err) {
-            alert("Please allow Paste to see words!");
+            alert("请允许网页访问剪贴板。");
         }
     }
 
@@ -214,31 +214,32 @@
                 }
             }
             if (found) {
-                createButton(found, true, grid);
+                addWordChip(found, true, grid);
             } else {
-                createButton(text[i], false, grid);
+                addWordChip(text[i], false, grid);
                 i++;
             }
         }
-        setTimeout(() => {
-            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        if(grid.innerHTML !== "") {
+            window.scrollTo({ top: grid.offsetTop - 100, behavior: 'smooth' });
+        }
     }
 
-    function createButton(word, isInDict, container) {
-        const btn = document.createElement('div');
-        btn.className = 'word-item';
-        btn.innerText = word;
+    function addWordChip(word, isInDict, container) {
+        const chip = document.createElement('div');
+        chip.className = 'word-chip';
+        chip.innerText = word;
+        
         if (isInDict) {
-            btn.onclick = (e) => {
+            chip.onclick = (e) => {
                 showDetail(word);
-                e.target.classList.add('read');
+                e.target.classList.add('viewed');
             };
         } else {
-            btn.style.opacity = "0.4";
-            btn.onclick = () => speak(word);
+            chip.style.opacity = "0.3";
+            chip.onclick = () => speak(word);
         }
-        container.appendChild(btn);
+        container.appendChild(chip);
     }
 
     function showDetail(word) {
@@ -247,21 +248,19 @@
         document.getElementById('card-zh').innerText = word;
         document.getElementById('card-py').innerText = entry.pinyin || "";
         document.getElementById('card-en').innerText = entry.english || entry.definitions || "";
-        document.getElementById('detail-view').classList.add('active');
-        document.getElementById('mask').classList.add('active');
+        document.getElementById('detail-overlay').classList.add('active');
         speak(word);
     }
 
     function closeDetail() { 
-        document.getElementById('detail-view').classList.remove('active'); 
-        document.getElementById('mask').classList.remove('active');
+        document.getElementById('detail-overlay').classList.remove('active'); 
     }
 
     function speak(t) {
         const text = t || document.getElementById('card-zh').innerText;
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'zh-CN';
-        msg.rate = 0.7;
+        msg.rate = 0.8;
         window.speechSynthesis.speak(msg);
     }
 </script>
