@@ -173,18 +173,21 @@
     </div>
 
 <script>
+    // --- Priority Dictionary Patch (65+ High-Priority Words) ---
     const priorityVocab = {
-        // --- ADDED YOUR REQUESTS HERE ---
+        // Location & Direction (FIXED)
         "那儿": { pinyin: "nàr", english: "there / that place" },
         "这儿": { pinyin: "zhèr", english: "here / this place" },
         "在哪儿": { pinyin: "zài nǎr", english: "at where / where is it?" },
-        
-        // --- Transitions & Logic ---
+        "那里": { pinyin: "nàlǐ", english: "there / that place" },
+        "这里": { pinyin: "zhèlǐ", english: "here / this place" },
+
+        // Transitions & Logic
         "但是": { pinyin: "dànshì", english: "but / however" },
         "因为": { pinyin: "yīnwèi", english: "because" },
         "所以": { pinyin: "suǒyǐ", english: "therefore / so" },
         "如果": { pinyin: "rúguǒ", english: "if / in case" },
-        "而且": { pinyin: "érqiě", english: "moreover / furthermore / and" },
+        "而且": { pinyin: "érqiě", english: "moreover / furthermore / and also" },
         "虽然": { pinyin: "suīrán", english: "although / though" },
         "还是": { pinyin: "háishi", english: "still / or (in a question)" },
         "然后": { pinyin: "ránhòu", english: "then / afterwards" },
@@ -192,7 +195,7 @@
         "可是": { pinyin: "kěshì", english: "but / however" },
         "只要": { pinyin: "zhǐyào", english: "as long as / only if" },
 
-        // --- Common Particles & Particles (Prioritized) ---
+        // Common Particles & Single Words
         "可": { pinyin: "kě", english: "can / able to / approve (Commonly: 可以 kěyǐ)" },
         "着": { pinyin: "zhe", english: "indicates action in progress (Commonly: 看着 kànzhe)" },
         "了": { pinyin: "le", english: "completed action / change of state" },
@@ -231,7 +234,7 @@
         "多": { pinyin: "duō", english: "many / much / more" },
         "少": { pinyin: "shǎo", english: "few / little / less" },
         "更": { pinyin: "gèng", english: "more / even more" },
-        "最": { pinyin: "zuì", english: "most / -est" },
+        "最": { pinyin: "zuì", english: "most / -est (superlative)" },
         "已经": { pinyin: "yǐjīng", english: "already" },
         "总是": { pinyin: "zǒngshì", english: "always" },
         "经常": { pinyin: "jīngcháng", english: "often / frequently" },
@@ -262,3 +265,94 @@
     };
 
     async function readClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && text.trim().length > 0) {
+                processText(text);
+            } else {
+                alert("请先在图片中长按并‘拷贝’文字内容。");
+            }
+        } catch (err) { alert("请授予粘贴权限以分析内容。"); }
+    }
+
+    function processText(rawText) {
+        const grid = document.getElementById('word-grid');
+        grid.innerHTML = "";
+        const paragraphs = rawText.split(/\n+/);
+        let pIndex = 1;
+
+        paragraphs.forEach(pText => {
+            const cleanText = pText.replace(/[^\u4e00-\u9fa5]/g, '');
+            if (cleanText.length === 0) return;
+
+            const row = document.createElement('div');
+            row.className = 'paragraph-row';
+            row.innerHTML = `<div class="p-num">Paragraph ${pIndex++}</div>`;
+
+            let i = 0;
+            const maxLen = 7; 
+            while (i < cleanText.length) {
+                let found = "";
+                for (let len = maxLen; len >= 1; len--) {
+                    let chunk = cleanText.substr(i, len);
+                    if (priorityVocab[chunk] || mainDictionary[chunk]) {
+                        found = chunk;
+                        i += len;
+                        break;
+                    }
+                }
+                if (found) {
+                    addWordItem(found, true, row);
+                } else {
+                    addWordItem(cleanText[i], false, row);
+                    i++;
+                }
+            }
+            grid.appendChild(row);
+        });
+        setTimeout(() => { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+
+    function addWordItem(word, isInDict, container) {
+        const btn = document.createElement('div');
+        btn.className = 'word-item';
+        btn.innerText = word;
+        if (isInDict) {
+            btn.onclick = (e) => {
+                showDetail(word);
+                e.target.classList.add('read');
+            };
+        } else {
+            btn.style.opacity = "0.4";
+            btn.style.border = "1px dashed #999";
+            btn.onclick = () => speak(word);
+        }
+        container.appendChild(btn);
+    }
+
+    function showDetail(word) {
+        const entry = priorityVocab[word] || mainDictionary[word];
+        if(!entry) return;
+        document.getElementById('card-zh').innerText = word;
+        document.getElementById('card-py').innerText = entry.pinyin || entry.pronunciation || "";
+        document.getElementById('card-en').innerText = entry.english || entry.definitions || "";
+        document.getElementById('detail-view').classList.add('active');
+        document.getElementById('mask').classList.add('active');
+        speak(word);
+    }
+
+    function closeDetail() { 
+        document.getElementById('detail-view').classList.remove('active'); 
+        document.getElementById('mask').classList.remove('active');
+    }
+
+    function speak(t) {
+        const text = t || document.getElementById('card-zh').innerText;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'zh-CN';
+        msg.rate = 0.8;
+        window.speechSynthesis.speak(msg);
+    }
+</script>
+</body>
+</html>
