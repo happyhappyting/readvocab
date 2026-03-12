@@ -68,7 +68,6 @@
         .hand-icon { font-size: 1.8rem; margin-bottom: 6px; }
         .label-black { background: #333; color: white; padding: 2px 6px; border-radius: 5px; font-size: 0.7rem; font-weight: normal; }
 
-        /* Pro Workflow Text */
         .pro-tip { grid-column: span 2; font-size: 0.75rem; color: #8E8E93; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px; line-height: 1.3; }
 
         .magic-btn {
@@ -174,8 +173,81 @@
     </div>
 
 <script>
-    let dictionary = {};
-    fetch('dictionary.json').then(r => r.json()).then(data => dictionary = data);
+    // --- Massive Priority Dictionary Patch (60+ High-Priority Words) ---
+    const priorityVocab = {
+        // Essential Connectors & Transitions
+        "但是": { pinyin: "dànshì", english: "but / however" },
+        "因为": { pinyin: "yīnwèi", english: "because" },
+        "所以": { pinyin: "suǒyǐ", english: "therefore / so" },
+        "如果": { pinyin: "rúguǒ", english: "if / in case" },
+        "而且": { pinyin: "érqiě", english: "moreover / furthermore / and" },
+        "虽然": { pinyin: "suīrán", english: "although / though" },
+        "还是": { pinyin: "háishi", english: "still / or (in a question)" },
+        "然后": { pinyin: "ránhòu", english: "then / afterwards" },
+        "或者": { pinyin: "huòzhě", english: "or / possibly" },
+        "可是": { pinyin: "kěshì", english: "but / however" },
+        "只要": { pinyin: "zhǐyào", english: "as long as / only if" },
+        "而且": { pinyin: "érqiě", english: "and also / furthermore" },
+
+        // Common Particles & Single Words (Fixing weird definitions)
+        "可": { pinyin: "kě", english: "can / able to / approve (Commonly: 可以 kěyǐ)" },
+        "着": { pinyin: "zhe", english: "indicates action in progress (Commonly: 看着 kànzhe)" },
+        "了": { pinyin: "le", english: "completed action / change of state" },
+        "和": { pinyin: "hé", english: "and / with" },
+        "的": { pinyin: "de", english: "possessive particle / adjective marker" },
+        "地": { pinyin: "de", english: "-ly (adverb marker) / dì: ground" },
+        "得": { pinyin: "de", english: "resultative particle / děi: must" },
+        "就": { pinyin: "jiù", english: "then / precisely / right away" },
+        "也": { pinyin: "yě", english: "also / too" },
+        "要": { pinyin: "yào", english: "want / will / must" },
+        "而": { pinyin: "ér", english: "and / but / yet" },
+        "但": { pinyin: "dàn", english: "but / however" },
+        "与": { pinyin: "yǔ", english: "and / with / together with" },
+        "或": { pinyin: "huò", english: "or / perhaps" },
+        "发": { pinyin: "fā", english: "to send / issue / develop (Commonly: 发现 fāxiàn)" },
+        "中": { pinyin: "zhōng", english: "middle / within / China (Commonly: 中间 zhōngjiān)" },
+        "行": { pinyin: "xíng", english: "okay / walk / travel (Commonly: 行人 xíngrén)" },
+        "为": { pinyin: "wèi", english: "for / because of / wéi: to be" },
+        "子": { pinyin: "zi", english: "noun suffix / child (Commonly: 孩子 háizi)" },
+        "面": { pinyin: "miàn", english: "face / side / noodles / surface" },
+        "会": { pinyin: "huì", english: "can / will / meeting (Commonly: 开会 kāihuì)" },
+        "对": { pinyin: "duì", english: "correct / toward / pair" },
+        "在": { pinyin: "zài", english: "at / in / located at" },
+        "是": { pinyin: "shì", english: "is / am / are / yes" },
+        "那": { pinyin: "nà", english: "that / those" },
+        "这": { pinyin: "zhè", english: "this / these" },
+        "到": { pinyin: "dào", english: "to arrive / up to / to" },
+        "大": { pinyin: "dà", english: "big / large / great" },
+        "上": { pinyin: "shàng", english: "up / on / above" },
+        "下": { pinyin: "xià", english: "down / below / next" },
+        "把": { pinyin: "bǎ", english: "object marker / to hold" },
+        "从": { pinyin: "cóng", english: "from / since / follow" },
+        "后": { pinyin: "hòu", english: "after / behind / back" },
+        "过": { pinyin: "guò", english: "indicates past experience / to cross" },
+        "种": { pinyin: "zhǒng", english: "type / kind / sort / zhòng: to plant" },
+        "点": { pinyin: "diǎn", english: "point / dot / a little / o'clock" },
+        "多": { pinyin: "duō", english: "many / much / more" },
+        "少": { pinyin: "shǎo", english: "few / little / less" },
+        "更": { pinyin: "gèng", english: "more / even more" },
+        "最": { pinyin: "zuì", english: "most / -est (superlative)" },
+        "已经": { pinyin: "yǐjīng", english: "already" },
+        "总是": { pinyin: "zǒngshì", english: "always" },
+        "经常": { pinyin: "jīngcháng", english: "often / frequently" },
+        "非常": { pinyin: "fēicháng", english: "very / extremely" },
+        "特别": { pinyin: "tèbié", english: "especially / special" },
+        "可能": { pinyin: "kěnéng", english: "possible / maybe" },
+        "应该": { pinyin: "yīnggāi", english: "should / ought to" },
+        "正在": { pinyin: "zhèngzài", english: "in the process of (action)" },
+        "一起": { pinyin: "yīqǐ", english: "together" },
+        "刚才": { pinyin: "gāngcái", english: "just now" },
+        "准备": { pinyin: "zhǔnbèi", english: "to prepare / plan to" },
+        "开始": { pinyin: "kāishǐ", english: "to start / begin" }
+    };
+
+    let mainDictionary = {};
+    fetch('dictionary.json').then(r => r.json()).then(data => {
+        mainDictionary = data;
+    });
 
     document.getElementById('file-input').onchange = (e) => {
         const file = e.target.files[0];
@@ -220,7 +292,18 @@
                 let found = "";
                 for (let len = maxLen; len >= 1; len--) {
                     let chunk = cleanText.substr(i, len);
-                    if (dictionary[chunk]) { found = chunk; i += len; break; }
+                    // Check Priority List First
+                    if (priorityVocab[chunk]) {
+                        found = chunk;
+                        i += len;
+                        break;
+                    }
+                    // Check Main JSON Second
+                    if (mainDictionary[chunk]) {
+                        found = chunk;
+                        i += len;
+                        break;
+                    }
                 }
                 if (found) {
                     addWordItem(found, true, row);
@@ -252,7 +335,7 @@
     }
 
     function showDetail(word) {
-        const entry = dictionary[word];
+        const entry = priorityVocab[word] || mainDictionary[word];
         if(!entry) return;
         document.getElementById('card-zh').innerText = word;
         document.getElementById('card-py').innerText = entry.pinyin || entry.pronunciation || "";
