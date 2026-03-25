@@ -30,7 +30,7 @@
         header { width: 100%; padding: 30px 0 10px; text-align: center; }
         h1 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
 
-        .container { width: 92%; max-width: 500px; padding-bottom: 150px; }
+        .container { width: 92%; max-width: 500px; padding-bottom: 150px; padding-top: 10px; }
 
         .glass-card {
             background: var(--card-white);
@@ -43,30 +43,40 @@
 
         .step-header { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; }
 
-        .photo-btn {
-            background: var(--action-pink); color: white; border: none;
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
-            padding: 18px; border-radius: 20px; font-size: 1.1rem; font-weight: 700;
-            box-shadow: 0 6px 0px var(--pink-shadow);
-            cursor: pointer; transition: all 0.1s;
-        }
-        .photo-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--pink-shadow); }
-
-        .preview-box { width: 100%; border: 6px solid white; border-radius: 24px; overflow: hidden; margin: 20px 0; box-shadow: 0 12px 30px rgba(0,0,0,0.1); background: #eee; }
-        #display-img { 
-            width: 100%; height: auto; display: block; 
-            -webkit-user-select: text !important; 
-            user-select: text !important;
-            -webkit-touch-callout: default !important;
+        /* --- New Clear Instructions Styling --- */
+        .instruction-grid {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 15px;
+            margin-top: 10px;
         }
 
-        .gesture-guide {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-            background: #F2F2F7; padding: 15px; border-radius: 18px;
+        .icon-wrap {
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem;
+            color: var(--action-pink);
         }
-        .action-item { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 700; color: #444; }
-        .hand-icon { font-size: 1.8rem; margin-bottom: 6px; }
-        .label-black { background: #333; color: white; padding: 2px 6px; border-radius: 5px; font-size: 0.7rem; font-weight: normal; }
+
+        .text-wrap {
+            line-height: 1.4;
+        }
+
+        .text-title {
+            font-weight: 700; font-size: 0.95rem; color: #333;
+        }
+
+        .text-title-en {
+            font-weight: 700; font-size: 0.9rem; color: #555; margin-bottom: 2px;
+        }
+
+        .text-detail {
+            font-size: 0.8rem; color: #666;
+        }
+        
+        .label-black { 
+            background: #333; color: white; padding: 2px 5px; 
+            border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+        }
 
         .pro-tip { grid-column: span 2; font-size: 0.75rem; color: #8E8E93; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px; line-height: 1.3; }
 
@@ -128,37 +138,36 @@
 
     <div class="container">
         <div class="glass-card">
-            <div class="step-header">📸 01. 导入内容</div>
-            <label for="file-input" class="photo-btn">打开相机 / 选取图片</label>
-            <input type="file" id="file-input" accept="image/*" class="hidden">
+            <div class="step-header">📸 第一步: 拍照识字 (OCR)</div>
             
-            <button class="photo-btn" style="background:#333; margin-top:12px; box-shadow: 0 6px 0px #000;" onclick="window.location.href='camera:'">
-                直接启动相机
-            </button>
-        </div>
-
-        <div id="image-area" class="preview-box hidden">
-            <img id="display-img" src="">
-        </div>
-
-        <div class="glass-card">
-            <div class="step-header">👆 02. 选取词语</div>
-            <div class="gesture-guide">
-                <div class="action-item">
-                    <div class="hand-icon">👆</div>
-                    长按识别文字
+            <div class="instruction-grid">
+                <div class="icon-wrap">📱</div>
+                <div class="text-wrap">
+                    <div class="text-title">1. 打开系统相机 App</div>
+                    <div class="text-title-en">Open iPad Camera App</div>
+                    <div class="text-detail">对准你要学习的中文句子。 (Point at the Chinese text.)</div>
                 </div>
-                <div class="action-item">
-                    <div class="hand-icon">🔘</div>
-                    点 <span class="label-black">Show Text</span><br>再点 <span class="label-black">Copy</span>
+                
+                <div class="icon-wrap">三</div>
+                <div class="text-wrap">
+                    <div class="text-title">2. 点击文字识别图标</div>
+                    <div class="text-title-en">Tap Live Text Icon</div>
+                    <div class="text-detail">点击画面右下角的识别图标，等待文字高亮。 (Wait for text highlight.)</div>
                 </div>
-                <div class="pro-tip">
-                    <b>Pro Tip:</b> 若无法识别，请在系统相机中拍摄并点击右下角文字图标，选择“拷贝全部”后返回。
+
+                <div class="icon-wrap">📋</div>
+                <div class="text-wrap">
+                    <div class="text-title">3. 拷贝全部文字</div>
+                    <div class="text-title-en">Tap "Copy All"</div>
+                    <div class="text-detail">点击左下角的 <span class="label-black">拷贝全部 (Copy All)</span>。将文字存入剪贴板。</div>
                 </div>
             </div>
         </div>
 
-        <button class="magic-btn" onclick="readClipboard()">分析选中的内容 Analyze</button>
+        <div class="glass-card">
+            <div class="step-header">👆 第二步: 开始学习 (Study)</div>
+            <button class="magic-btn" onclick="readClipboard()">分析选中的内容 Analyze</button>
+        </div>
 
         <div id="word-grid"></div>
     </div>
@@ -173,16 +182,13 @@
     </div>
 
 <script>
-    // --- Priority Dictionary Patch (65+ High-Priority Words) ---
+    // --- Priority Vocab Patch & Connectors ---
     const priorityVocab = {
-        // Location & Direction (FIXED)
         "那儿": { pinyin: "nàr", english: "there / that place" },
         "这儿": { pinyin: "zhèr", english: "here / this place" },
         "在哪儿": { pinyin: "zài nǎr", english: "at where / where is it?" },
         "那里": { pinyin: "nàlǐ", english: "there / that place" },
         "这里": { pinyin: "zhèlǐ", english: "here / this place" },
-
-        // Transitions & Logic
         "但是": { pinyin: "dànshì", english: "but / however" },
         "因为": { pinyin: "yīnwèi", english: "because" },
         "所以": { pinyin: "suǒyǐ", english: "therefore / so" },
@@ -194,57 +200,27 @@
         "或者": { pinyin: "huòzhě", english: "or / possibly" },
         "可是": { pinyin: "kěshì", english: "but / however" },
         "只要": { pinyin: "zhǐyào", english: "as long as / only if" },
-
-        // Common Particles & Single Words
-        "可": { pinyin: "kě", english: "can / able to / approve (Commonly: 可以 kěyǐ)" },
+        "可": { pinyin: "kě", english: "can / able to (Commonly: 可以 kěyǐ)" },
         "着": { pinyin: "zhe", english: "indicates action in progress (Commonly: 看着 kànzhe)" },
         "了": { pinyin: "le", english: "completed action / change of state" },
         "和": { pinyin: "hé", english: "and / with" },
-        "的": { pinyin: "de", english: "possessive particle / adjective marker" },
+        "的": { pinyin: "de", english: "possessive particle" },
         "地": { pinyin: "de", english: "-ly (adverb marker) / dì: ground" },
         "得": { pinyin: "de", english: "resultative particle / děi: must" },
         "就": { pinyin: "jiù", english: "then / precisely / right away" },
         "也": { pinyin: "yě", english: "also / too" },
         "要": { pinyin: "yào", english: "want / will / must" },
-        "而": { pinyin: "ér", english: "and / but / yet" },
-        "但": { pinyin: "dàn", english: "but / however" },
-        "与": { pinyin: "yǔ", english: "and / with / together with" },
-        "或": { pinyin: "huò", english: "or / perhaps" },
-        "发": { pinyin: "fā", english: "to send / issue / develop" },
-        "中": { pinyin: "zhōng", english: "middle / China / within" },
-        "行": { pinyin: "xíng", english: "okay / walk / travel" },
+        "而": { pinyin: "ér", english: "and / but" },
+        "但": { pinyin: "dàn", english: "but" },
         "为": { pinyin: "wèi", english: "for / because of / wéi: to be" },
         "子": { pinyin: "zi", english: "noun suffix / child" },
-        "面": { pinyin: "miàn", english: "face / side / noodles / surface" },
-        "会": { pinyin: "huì", english: "can / will / meeting" },
-        "对": { pinyin: "duì", english: "correct / toward / pair" },
+        "会": { pinyin: "huì", english: "can / will / meet" },
         "在": { pinyin: "zài", english: "at / in / located at" },
         "是": { pinyin: "shì", english: "is / am / are / yes" },
-        "那": { pinyin: "nà", english: "that / those" },
-        "这": { pinyin: "zhè", english: "this / these" },
-        "到": { pinyin: "dào", english: "to arrive / up to / to" },
-        "大": { pinyin: "dà", english: "big / large / great" },
-        "上": { pinyin: "shàng", english: "up / on / above" },
-        "下": { pinyin: "xià", english: "down / below / next" },
-        "把": { pinyin: "bǎ", english: "object marker / to hold" },
-        "从": { pinyin: "cóng", english: "from / since / follow" },
         "后": { pinyin: "hòu", english: "after / behind / back" },
-        "过": { pinyin: "guò", english: "indicates past experience / to cross" },
-        "点": { pinyin: "diǎn", english: "point / dot / a little / o'clock" },
-        "多": { pinyin: "duō", english: "many / much / more" },
-        "少": { pinyin: "shǎo", english: "few / little / less" },
-        "更": { pinyin: "gèng", english: "more / even more" },
-        "最": { pinyin: "zuì", english: "most / -est (superlative)" },
         "已经": { pinyin: "yǐjīng", english: "already" },
-        "总是": { pinyin: "zǒngshì", english: "always" },
-        "经常": { pinyin: "jīngcháng", english: "often / frequently" },
-        "非常": { pinyin: "fēicháng", english: "very / extremely" },
-        "特别": { pinyin: "tèbié", english: "especially / special" },
-        "可能": { pinyin: "kěnéng", english: "possible / maybe" },
-        "应该": { pinyin: "yīnggāi", english: "should / ought to" },
-        "正在": { pinyin: "zhèngzài", english: "in the process of (action)" },
-        "一起": { pinyin: "yīqǐ", english: "together" },
-        "开始": { pinyin: "kāishǐ", english: "to start / begin" }
+        "准备": { pinyin: "zhǔnbèi", english: "prepare" },
+        "开始": { pinyin: "kāishǐ", english: "start" }
     };
 
     let mainDictionary = {};
@@ -252,32 +228,23 @@
         mainDictionary = data;
     });
 
-    document.getElementById('file-input').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            document.getElementById('display-img').src = URL.createObjectURL(file);
-            document.getElementById('image-area').classList.remove('hidden');
-            document.getElementById('word-grid').innerHTML = "";
-            setTimeout(() => {
-                document.getElementById('image-area').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
-        }
-    };
-
+    // --- Clipboard Analyse Logic remains unchanged ---
     async function readClipboard() {
         try {
+            // Clears any previous block
+            document.getElementById('word-grid').innerHTML = "";
+
             const text = await navigator.clipboard.readText();
             if (text && text.trim().length > 0) {
                 processText(text);
             } else {
-                alert("请先在图片中长按并‘拷贝’文字内容。");
+                alert("请先按照上述指引拷贝文字。 (Please copy text as instructed above.)");
             }
-        } catch (err) { alert("请授予粘贴权限以分析内容。"); }
+        } catch (err) { alert("请授予粘贴权限以分析内容。 (Please grant paste permission.)"); }
     }
 
     function processText(rawText) {
         const grid = document.getElementById('word-grid');
-        grid.innerHTML = "";
         const paragraphs = rawText.split(/\n+/);
         let pIndex = 1;
 
