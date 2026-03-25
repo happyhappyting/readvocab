@@ -27,10 +27,10 @@
             color: var(--text-main);
         }
 
-        header { width: 100%; padding: 30px 0 10px; text-align: center; }
+        header { width: 100%; padding: 25px 0 10px; text-align: center; }
         h1 { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
 
-        .container { width: 92%; max-width: 500px; padding-bottom: 150px; padding-top: 10px; }
+        .container { width: 92%; max-width: 500px; padding-bottom: 150px; }
 
         .glass-card {
             background: var(--card-white);
@@ -43,42 +43,27 @@
 
         .step-header { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; }
 
-        /* --- New Clear Instructions Styling --- */
-        .instruction-grid {
-            display: grid;
-            grid-template-columns: 40px 1fr;
-            gap: 15px;
-            margin-top: 10px;
-        }
+        /* --- 拍照指引样式 --- */
+        .instruction-grid { display: grid; grid-template-columns: 40px 1fr; gap: 15px; margin-top: 10px; }
+        .icon-wrap { display: flex; justify-content: center; align-items: center; font-size: 1.8rem; color: var(--action-pink); }
+        .text-title { font-weight: 700; font-size: 0.95rem; color: #333; }
+        .text-title-en { font-weight: 700; font-size: 0.9rem; color: #555; margin-bottom: 2px; }
+        .text-detail { font-size: 0.8rem; color: #666; line-height: 1.4; }
+        .label-black { background: #333; color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
 
-        .icon-wrap {
-            display: flex; justify-content: center; align-items: center;
-            font-size: 1.8rem;
-            color: var(--action-pink);
+        /* --- 编辑区样式 --- */
+        #text-input {
+            width: 100%; height: 140px;
+            border-radius: 18px; border: 2px solid #EEE;
+            padding: 15px; font-size: 1.1rem; font-family: inherit;
+            resize: none; outline: none; transition: border 0.3s;
+            background: #FAFAFA; line-height: 1.5;
         }
-
-        .text-wrap {
-            line-height: 1.4;
-        }
-
-        .text-title {
-            font-weight: 700; font-size: 0.95rem; color: #333;
-        }
-
-        .text-title-en {
-            font-weight: 700; font-size: 0.9rem; color: #555; margin-bottom: 2px;
-        }
-
-        .text-detail {
-            font-size: 0.8rem; color: #666;
-        }
-        
-        .label-black { 
-            background: #333; color: white; padding: 2px 5px; 
-            border-radius: 4px; font-size: 0.75rem; font-weight: 600;
-        }
-
-        .pro-tip { grid-column: span 2; font-size: 0.75rem; color: #8E8E93; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px; line-height: 1.3; }
+        #text-input:focus { border-color: var(--vivid-blue); background: #FFF; }
+        .btn-group { display: flex; gap: 10px; margin-top: 12px; }
+        .sub-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; transition: 0.1s; }
+        .btn-paste { background: #EEE; color: #333; }
+        .btn-clear { background: #FFE5E5; color: #FF3B30; }
 
         .magic-btn {
             background: var(--vivid-blue); color: white; border: none;
@@ -86,87 +71,67 @@
             font-size: 1.4rem; font-weight: 800;
             box-shadow: 0 8px 0px var(--blue-shadow);
             margin: 20px 0; cursor: pointer; transition: all 0.1s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .magic-btn:active { transform: translateY(4px); box-shadow: 0 4px 0px var(--blue-shadow); }
 
-        #word-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-        
-        .paragraph-row { 
-            display: flex; flex-wrap: wrap; gap: 12px; 
-            background: rgba(255,255,255,0.3); padding: 15px; border-radius: 18px;
-            position: relative;
-        }
-        .p-num { 
-            width: 100%; font-size: 0.8rem; font-weight: 800; color: #8E8E93; margin-bottom: -5px; padding-left: 5px;
-        }
+        /* --- 分词展示区 --- */
+        .paragraph-row { display: flex; flex-wrap: wrap; gap: 12px; background: rgba(255,255,255,0.4); padding: 15px; border-radius: 18px; margin-bottom: 20px; }
+        .word-item { background: white; color: var(--text-main); font-size: 2rem; font-weight: 700; padding: 14px 22px; border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .word-item.read { background: #E5E5EA !important; color: #AEAEB2 !important; }
 
-        .word-item {
-            background: white; color: var(--text-main); font-size: 2rem; font-weight: 700; padding: 14px 22px;
-            border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-        .word-item.read { background: #E5E5EA !important; color: #AEAEB2 !important; transform: scale(0.95); }
-
+        /* --- 弹窗 --- */
         #detail-view {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.9);
             width: 85%; max-width: 350px; padding: 40px 25px;
-            background: #FFFFFF; border-radius: 40px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
-            z-index: 2000; text-align: center;
+            background: white; border-radius: 40px; z-index: 2000; text-align: center;
             opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         #detail-view.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
-
-        .zh-text { font-size: 5rem; margin: 0; color: #000; font-weight: 900; }
-        .py-text { color: var(--action-pink); font-size: 1.8rem; font-weight: 700; margin: 10px 0 20px; }
-        .en-text { font-size: 1.2rem; color: #444; background: #F2F2F7; padding: 18px; border-radius: 18px; margin-bottom: 25px; line-height: 1.4; }
-        
-        .speak-btn { background: var(--success-green); color: white; font-weight: 800; padding: 20px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
-        .close-btn { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: #E5E5EA; color: #8E8E93; border: none; border-radius: 50%; font-size: 1.2rem; font-weight: bold; }
-
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .hidden { display: none !important; }
+        .zh-text { font-size: 5rem; margin: 0; font-weight: 900; }
+        .py-text { color: var(--action-pink); font-size: 1.8rem; font-weight: 700; margin: 10px 0 20px; }
+        .en-text { font-size: 1.2rem; color: #444; background: #F2F2F7; padding: 18px; border-radius: 18px; margin-bottom: 25px; line-height: 1.4; }
+        .speak-btn { background: var(--success-green); color: white; font-weight: 800; padding: 20px; width: 100%; border-radius: 20px; border: none; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Smart Pen</h1>
-    </header>
+    <header><h1>Smart Pen</h1></header>
 
     <div class="container">
         <div class="glass-card">
             <div class="step-header">📸 第一步: 拍照识字 (OCR)</div>
-            
             <div class="instruction-grid">
                 <div class="icon-wrap">📱</div>
                 <div class="text-wrap">
                     <div class="text-title">1. 打开系统相机 App</div>
                     <div class="text-title-en">Open iPad Camera App</div>
-                    <div class="text-detail">对准你要学习的中文句子。 (Point at the Chinese text.)</div>
+                    <div class="text-detail">对准课本文字。 (Point at the Chinese text.)</div>
                 </div>
-                
                 <div class="icon-wrap">三</div>
                 <div class="text-wrap">
                     <div class="text-title">2. 点击文字识别图标</div>
                     <div class="text-title-en">Tap Live Text Icon</div>
-                    <div class="text-detail">点击画面右下角的识别图标，等待文字高亮。 (Wait for text highlight.)</div>
+                    <div class="text-detail">等待文字高亮。 (Wait for text highlight.)</div>
                 </div>
-
                 <div class="icon-wrap">📋</div>
                 <div class="text-wrap">
                     <div class="text-title">3. 拷贝全部文字</div>
                     <div class="text-title-en">Tap "Copy All"</div>
-                    <div class="text-detail">点击左下角的 <span class="label-black">拷贝全部 (Copy All)</span>。将文字存入剪贴板。</div>
+                    <div class="text-detail">点击左下角的 <span class="label-black">拷贝全部 (Copy All)</span>。</div>
                 </div>
             </div>
         </div>
 
         <div class="glass-card">
-            <div class="step-header">👆 第二步: 开始学习 (Study)</div>
-            <button class="magic-btn" onclick="readClipboard()">分析选中的内容 Analyze</button>
+            <div class="step-header">📝 第二步: 准备内容 (Prepare)</div>
+            <textarea id="text-input" placeholder="文字将在这里显示，你可以手动修改..."></textarea>
+            <div class="btn-group">
+                <button class="sub-btn btn-paste" onclick="appendClipboard()">📋 追加粘贴 (Paste)</button>
+                <button class="sub-btn btn-clear" onclick="clearText()">🗑️ 清空 (Clear)</button>
+            </div>
+            <button class="magic-btn" onclick="startAnalyze()">开始分析 Analyze</button>
         </div>
 
         <div id="word-grid"></div>
@@ -174,7 +139,6 @@
 
     <div id="mask" class="overlay" onclick="closeDetail()"></div>
     <div id="detail-view">
-        <button onclick="closeDetail()" class="close-btn">✕</button>
         <h2 class="zh-text" id="card-zh">--</h2>
         <p class="py-text" id="card-py">--</p>
         <div class="en-text" id="card-en">--</div>
@@ -182,7 +146,7 @@
     </div>
 
 <script>
-    // --- Priority Vocab Patch & Connectors ---
+    // --- 完整、无删减的高频词库 ---
     const priorityVocab = {
         "那儿": { pinyin: "nàr", english: "there / that place" },
         "这儿": { pinyin: "zhèr", english: "here / this place" },
@@ -224,60 +188,55 @@
     };
 
     let mainDictionary = {};
-    fetch('dictionary.json').then(r => r.json()).then(data => {
-        mainDictionary = data;
-    });
+    fetch('dictionary.json').then(r => r.json()).then(data => mainDictionary = data);
 
-    // --- Clipboard Analyse Logic remains unchanged ---
-    async function readClipboard() {
+    async function appendClipboard() {
         try {
-            // Clears any previous block
-            document.getElementById('word-grid').innerHTML = "";
-
             const text = await navigator.clipboard.readText();
-            if (text && text.trim().length > 0) {
-                processText(text);
-            } else {
-                alert("请先按照上述指引拷贝文字。 (Please copy text as instructed above.)");
+            if (text) {
+                const editor = document.getElementById('text-input');
+                const separator = editor.value.length > 0 ? "\n" : "";
+                editor.value += separator + text;
             }
-        } catch (err) { alert("请授予粘贴权限以分析内容。 (Please grant paste permission.)"); }
+        } catch (err) { alert("请允许粘贴权限。"); }
+    }
+
+    function clearText() {
+        if(confirm("确定清空吗？")) {
+            document.getElementById('text-input').value = "";
+            document.getElementById('word-grid').innerHTML = "";
+        }
+    }
+
+    function startAnalyze() {
+        const text = document.getElementById('text-input').value;
+        if (text.trim()) processText(text);
     }
 
     function processText(rawText) {
         const grid = document.getElementById('word-grid');
+        grid.innerHTML = "";
         const paragraphs = rawText.split(/\n+/);
-        let pIndex = 1;
-
         paragraphs.forEach(pText => {
             const cleanText = pText.replace(/[^\u4e00-\u9fa5]/g, '');
             if (cleanText.length === 0) return;
-
             const row = document.createElement('div');
             row.className = 'paragraph-row';
-            row.innerHTML = `<div class="p-num">Paragraph ${pIndex++}</div>`;
-
             let i = 0;
-            const maxLen = 7; 
             while (i < cleanText.length) {
                 let found = "";
-                for (let len = maxLen; len >= 1; len--) {
+                for (let len = 7; len >= 1; len--) {
                     let chunk = cleanText.substr(i, len);
                     if (priorityVocab[chunk] || mainDictionary[chunk]) {
-                        found = chunk;
-                        i += len;
-                        break;
+                        found = chunk; i += len; break;
                     }
                 }
-                if (found) {
-                    addWordItem(found, true, row);
-                } else {
-                    addWordItem(cleanText[i], false, row);
-                    i++;
-                }
+                if (found) { addWordItem(found, true, row); } 
+                else { addWordItem(cleanText[i], false, row); i++; }
             }
             grid.appendChild(row);
         });
-        setTimeout(() => { grid.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        setTimeout(() => grid.scrollIntoView({ behavior: 'smooth' }), 100);
     }
 
     function addWordItem(word, isInDict, container) {
@@ -285,21 +244,15 @@
         btn.className = 'word-item';
         btn.innerText = word;
         if (isInDict) {
-            btn.onclick = (e) => {
-                showDetail(word);
-                e.target.classList.add('read');
-            };
+            btn.onclick = (e) => { showDetail(word); e.target.classList.add('read'); };
         } else {
-            btn.style.opacity = "0.4";
-            btn.style.border = "1px dashed #999";
-            btn.onclick = () => speak(word);
+            btn.style.opacity = "0.3"; btn.onclick = () => speak(word);
         }
         container.appendChild(btn);
     }
 
     function showDetail(word) {
         const entry = priorityVocab[word] || mainDictionary[word];
-        if(!entry) return;
         document.getElementById('card-zh').innerText = word;
         document.getElementById('card-py').innerText = entry.pinyin || entry.pronunciation || "";
         document.getElementById('card-en').innerText = entry.english || entry.definitions || "";
